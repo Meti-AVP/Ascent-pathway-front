@@ -1,0 +1,43 @@
+.wipe {
+  position: fixed;
+  inset: 0;
+  z-index: 35;
+  overflow: hidden;
+  pointer-events: all;
+}
+
+/* one long train: tail · body · lead · flash — it enters from the left and leaves to the right */
+.wipe-run {
+  position: absolute;
+  top: -12vh;
+  bottom: -12vh;
+  left: 0;
+  width: 186vw;
+  display: flex;
+  transform: translate3d(-200vw, 0, 0) skewX(var(--lean));
+  animation: wipe-run 860ms linear both;
+  will-change: transform;
+}
+
+.wipe-run i {
+  display: block;
+  height: 100%;
+  flex: none;
+}
+
+.wipe-tail { width: 8vw; background: var(--orange); border-radius: 2vw 0 0 2vw; }
+.wipe-body { width: 160vw; background: var(--black); margin-left: -1px; }
+.wipe-lead { width: 14vw; background: var(--yellow); margin-left: -1px; }
+.wipe-flash { width: 4vw; background: var(--white); margin-left: -1px; border-radius: 0 2vw 2vw 0; }
+
+/* fast in, a breath while the screen behind is swapped, fast out */
+@keyframes wipe-run {
+  0% { transform: translate3d(-200vw, 0, 0) skewX(var(--lean)); animation-timing-function: cubic-bezier(0.5, 0, 0.2, 1); }
+  38% { transform: translate3d(-42vw, 0, 0) skewX(var(--lean)); animation-timing-function: linear; }
+  52% { transform: translate3d(-30vw, 0, 0) skewX(var(--lean)); animation-timing-function: cubic-bezier(0.7, 0, 0.3, 1); }
+  100% { transform: translate3d(126vw, 0, 0) skewX(var(--lean)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wipe { display: none; }
+}

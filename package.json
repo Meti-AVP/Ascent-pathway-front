@@ -1,0 +1,32 @@
+{
+  "name": "ascent-site",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Project ASCENT — Pathway Builder. Front-end mockup (no backend), built section by section.",
+  "scripts": {
+    "dev": "vite --port 5320 --strictPort",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --port 5321 --strictPort",
+    "typecheck": "tsc -b --noEmit"
+  },
+  "dependencies": {
+    "@fontsource-variable/nunito-sans": "^5.3.0",
+    "@fontsource/barlow-condensed": "^5.3.0",
+    "motion": "^14.12.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "three": "^0.187.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@types/three": "^0.187.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.7"
+  },
+  "engines": {
+    "node": ">=20.19"
+  }
+}

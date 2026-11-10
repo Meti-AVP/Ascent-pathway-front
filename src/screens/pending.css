@@ -1,0 +1,67 @@
+.pending {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  display: grid;
+  align-items: center;
+  padding: var(--nav-h) calc(var(--u) * 150) var(--bar-h);
+  background:
+    repeating-linear-gradient(102deg, rgba(255, 255, 255, 0.028) 0 calc(var(--u) * 2), transparent calc(var(--u) * 2) calc(var(--u) * 44)),
+    var(--black);
+}
+
+.pending-slab {
+  position: absolute;
+  top: -14%;
+  left: 52%;
+  width: 62%;
+  height: 128%;
+  border-radius: var(--r-l);
+  background: linear-gradient(180deg, #202023, #0b0b0c);
+  transform: skewX(var(--lean));
+  animation: pending-slab 0.9s var(--ease-out) 0.2s backwards;
+}
+
+@keyframes pending-slab {
+  from { transform: skewX(var(--lean)) translate3d(60%, 0, 0); }
+}
+
+.pending-body {
+  position: relative;
+  display: grid;
+  justify-items: start;
+  gap: calc(var(--u) * 16);
+  animation: pending-body 0.8s var(--ease-out) 0.38s backwards;
+}
+
+@keyframes pending-body {
+  from { opacity: 0; transform: translate3d(calc(var(--u) * -80), 0, 0) skewX(-6deg); }
+}
+
+.pending-title {
+  font-size: calc(var(--u) * 250);
+  font-weight: 900;
+  color: var(--white);
+  text-shadow: calc(var(--u) * 8) calc(var(--u) * 8) 0 var(--orange);
+}
+
+.pending-line {
+  font-size: calc(var(--u) * 30);
+  font-weight: 700;
+  color: var(--silver-1);
+}
+
+.pending-note {
+  font-size: calc(var(--u) * 19);
+  color: var(--silver-3);
+}
+
+.pending-back {
+  margin-top: calc(var(--u) * 26);
+  height: calc(var(--u) * 84);
+  font-size: calc(var(--u) * 42);
+}
+
+.pending-back.btn.is-go .btn-label svg {
+  animation: none;
+}

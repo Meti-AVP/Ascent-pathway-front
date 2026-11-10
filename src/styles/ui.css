@@ -1,0 +1,189 @@
+/*
+  Shared interface pieces: arrivals, the progress meter and the leaning button.
+  Sizes are in --u (one pixel of the 1920×1080 reference frame).
+*/
+/* arrivals: one orchestrated sequence on load, staggered by --i */
+.enter-l,
+.enter-r,
+.enter-up {
+  animation-duration: 0.82s;
+  animation-timing-function: var(--ease-out);
+  animation-fill-mode: backwards;
+  animation-delay: calc(var(--i, 0) * 85ms + 320ms);
+}
+
+.enter-l { animation-name: enter-l; }
+.enter-r { animation-name: enter-r; }
+.enter-up { animation-name: enter-up; }
+
+@keyframes enter-l {
+  from { opacity: 0; transform: translate3d(calc(var(--u) * -120), 0, 0) skewX(-7deg); }
+}
+
+@keyframes enter-r {
+  from { opacity: 0; transform: translate3d(calc(var(--u) * 120), 0, 0) skewX(7deg); }
+}
+
+@keyframes enter-up {
+  from { opacity: 0; transform: translate3d(0, calc(var(--u) * 46), 0); }
+}
+
+/* progress meter: green, with a slow travelling sheen */
+.meter {
+  display: block;
+  height: calc(var(--u) * 10);
+  border-radius: 99px;
+  background: var(--ink-5);
+  overflow: hidden;
+}
+
+.meter i {
+  display: block;
+  width: var(--fill, 0%);
+  height: 100%;
+  border-radius: inherit;
+  background:
+    linear-gradient(100deg, transparent 0 40%, rgba(255, 255, 255, 0.55) 50%, transparent 60% 100%) 0 0 / 220% 100%,
+    linear-gradient(90deg, var(--green-deep), var(--green));
+  animation: meter-grow 1.1s var(--ease-out) 0.9s backwards, meter-sheen 3.4s linear 2s infinite;
+}
+
+.meter.is-slim { height: calc(var(--u) * 7); }
+
+@keyframes meter-grow {
+  from { width: 0; }
+}
+
+@keyframes meter-sheen {
+  from { background-position: 120% 0, 0 0; }
+  to { background-position: -120% 0, 0 0; }
+}
+
+/* buttons: a leaning slab, the label stays upright-italic on top */
+.btn {
+  position: relative;
+  isolation: isolate;
+  display: inline-grid;
+  place-items: center;
+  height: calc(var(--u) * 92);
+  padding: 0 calc(var(--u) * 46);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 800;
+  font-size: calc(var(--u) * 36);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--black);
+  transition: transform 0.26s var(--ease-snap), filter 0.2s ease;
+}
+
+.btn::before,
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--r-m);
+  transform: skewX(var(--lean));
+}
+
+/* the comic drop: an offset block that slides out from under the slab on hover */
+.btn::after {
+  z-index: -2;
+  background: var(--black);
+  opacity: 0;
+  transition: transform 0.26s var(--ease-snap), opacity 0.16s ease;
+}
+
+.btn::before {
+  z-index: -1;
+  background: var(--btn-bg, var(--white));
+  box-shadow: var(--shadow-soft);
+  transition: background-color 0.18s ease, box-shadow 0.2s ease;
+}
+
+.btn-label {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 12);
+  overflow: hidden;
+  padding: calc(var(--u) * 6) calc(var(--u) * 4);
+}
+
+.btn-label svg {
+  width: 0.72em;
+  height: 0.72em;
+  flex: none;
+}
+
+.btn:hover,
+.btn:focus-visible {
+  transform: translate3d(calc(var(--u) * -4), calc(var(--u) * -4), 0);
+}
+
+.btn:hover::after,
+.btn:focus-visible::after {
+  opacity: 1;
+  transform: skewX(var(--lean)) translate3d(calc(var(--u) * 9), calc(var(--u) * 9), 0);
+}
+
+.btn:active {
+  transform: translate3d(calc(var(--u) * 2), calc(var(--u) * 2), 0) scale(0.985);
+  transition-duration: 0.06s;
+}
+
+.btn:active::after {
+  transform: skewX(var(--lean)) translate3d(calc(var(--u) * 3), calc(var(--u) * 3), 0);
+}
+
+.btn.is-white { --btn-bg: var(--white); }
+.btn.is-white::after { background: var(--orange); }
+
+.btn.is-small {
+  height: calc(var(--u) * 46);
+  padding: 0 calc(var(--u) * 22);
+  font-size: calc(var(--u) * 22);
+}
+
+.btn.is-small::before,
+.btn.is-small::after { border-radius: var(--r-s); }
+
+/* the one yellow thing on the screen */
+.btn.is-go {
+  --btn-bg: var(--yellow);
+  height: calc(var(--u) * 104);
+  padding: 0 calc(var(--u) * 58) 0 calc(var(--u) * 64);
+  font-weight: 900;
+  font-size: calc(var(--u) * 62);
+  letter-spacing: 0.005em;
+}
+
+.btn.is-go::before {
+  box-shadow: 0 calc(var(--u) * 10) calc(var(--u) * 46) rgba(255, 210, 31, 0.3);
+  background:
+    linear-gradient(100deg, transparent 0 42%, rgba(255, 255, 255, 0.85) 50%, transparent 58% 100%) 140% 0 / 240% 100% no-repeat,
+    var(--yellow);
+  animation: go-shine 4.6s ease-in-out 2.4s infinite;
+}
+
+.btn.is-go::after { background: var(--white); }
+
+.btn.is-go:hover::before,
+.btn.is-go:focus-visible::before {
+  box-shadow: 0 calc(var(--u) * 14) calc(var(--u) * 70) rgba(255, 210, 31, 0.55);
+}
+
+.btn.is-go .btn-label svg {
+  width: 0.62em;
+  height: 0.62em;
+  animation: go-nudge 1.5s var(--ease-in-out) infinite;
+}
+
+@keyframes go-shine {
+  0%, 62% { background-position: 140% 0, 0 0; }
+  82%, 100% { background-position: -60% 0, 0 0; }
+}
+
+@keyframes go-nudge {
+  50% { transform: translateX(calc(var(--u) * 8)); }
+}

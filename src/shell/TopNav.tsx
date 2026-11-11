@@ -5,9 +5,15 @@ import { Icon, Mark } from '../ui/Icon';
 import { useCountUp } from '../ui/useCountUp';
 import './topnav.css';
 
-type Props = { active: TabId; onNavigate: (tab: TabId) => void; face: string };
+type Props = {
+  active: TabId;
+  onNavigate: (tab: TabId) => void;
+  face: string;
+  theme: 'dark' | 'light';
+  onToggleTheme: () => void;
+};
 
-export function TopNav({ active, onNavigate, face }: Props) {
+export function TopNav({ active, onNavigate, face, theme, onToggleTheme }: Props) {
   const syn = useCountUp(player.syn, 1100, 500);
   const shards = useCountUp(player.shards, 900, 620);
 
@@ -55,6 +61,15 @@ export function TopNav({ active, onNavigate, face }: Props) {
           <span>{shards}</span>
         </div>
         <span className="nav-gap" />
+        <button
+          type="button"
+          className="nav-ico nav-theme"
+          aria-label={theme === 'dark' ? 'Switch to the white theme' : 'Switch to the black theme'}
+          aria-pressed={theme === 'light'}
+          onClick={onToggleTheme}
+        >
+          <Icon name="theme" />
+        </button>
         <button type="button" className="nav-ico" aria-label="Settings">
           <Icon name="gear" />
         </button>

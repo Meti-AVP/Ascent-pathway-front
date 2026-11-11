@@ -25,10 +25,60 @@
   flex: none;
 }
 
-.wipe-tail { width: 8vw; background: var(--orange); border-radius: 2vw 0 0 2vw; }
-.wipe-body { width: 160vw; background: var(--black); margin-left: -1px; }
-.wipe-lead { width: 14vw; background: var(--yellow); margin-left: -1px; }
-.wipe-flash { width: 4vw; background: var(--white); margin-left: -1px; border-radius: 0 2vw 2vw 0; }
+/* paint at the back: burnt orange with a coarse print in its own shade */
+.wipe-tail {
+  width: 8vw;
+  border-radius: 2vw 0 0 2vw;
+  background:
+    radial-gradient(circle, rgba(var(--lo), 0.22) 0 calc(var(--u) * 3), transparent calc(var(--u) * 3.8)) 0 0 / calc(var(--u) * 14) calc(var(--u) * 14),
+    var(--heat);
+}
+
+/* the body: the page colour, ruled with the house hatch and a ghosted word */
+.wipe-body {
+  position: relative;
+  width: 160vw;
+  margin-left: -1px;
+  background:
+    repeating-linear-gradient(90deg, rgba(var(--grain), 0.05) 0 calc(var(--u) * 2), transparent 0 calc(var(--u) * 26)),
+    linear-gradient(90deg, rgba(var(--grain), 0.06) 0 18%, transparent 18% 64%, rgba(var(--grain), 0.04) 64% 80%, transparent 80%),
+    var(--page);
+}
+
+/* placed where the body stands still while the screen behind is swapped */
+.wipe-body::before {
+  content: 'Ascent';
+  position: absolute;
+  left: 27%;
+  top: 50%;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 900;
+  font-size: calc(var(--u) * 430);
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: rgba(var(--grain), 0.05);
+  transform: translateY(-50%) skewX(var(--lean-back));
+}
+
+/* the action colour leads, hatched, with a lit edge */
+.wipe-lead {
+  width: 14vw;
+  margin-left: -1px;
+  background:
+    linear-gradient(90deg, transparent 0 calc(100% - var(--u) * 6), rgba(var(--hi), 0.6) calc(100% - var(--u) * 6)),
+    repeating-linear-gradient(90deg, rgba(var(--lo), 0.1) 0 calc(var(--u) * 3), transparent 0 calc(var(--u) * 14)) 0 0 / 45% 100% no-repeat,
+    radial-gradient(circle, rgba(var(--lo), 0.16) 0 calc(var(--u) * 2.4), transparent calc(var(--u) * 3)) 100% 0 / calc(var(--u) * 11) calc(var(--u) * 11),
+    var(--go);
+}
+
+.wipe-flash {
+  width: 4vw;
+  margin-left: -1px;
+  border-radius: 0 2vw 2vw 0;
+  background: var(--counter);
+}
 
 /* fast in, a breath while the screen behind is swapped, fast out */
 @keyframes wipe-run {

@@ -12,8 +12,8 @@ body,
 
 body {
   margin: 0;
-  background: var(--black);
-  color: var(--white);
+  background: var(--page);
+  color: var(--text);
   font-family: var(--font-body);
   font-stretch: 84%;
   font-size: calc(var(--u) * 18);
@@ -51,7 +51,7 @@ p {
 }
 
 :focus-visible {
-  outline: calc(var(--u) * 3) solid var(--yellow);
+  outline: calc(var(--u) * 3) solid var(--hot);
   outline-offset: calc(var(--u) * 4);
   border-radius: var(--r-s);
 }

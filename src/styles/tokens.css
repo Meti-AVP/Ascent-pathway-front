@@ -52,11 +52,121 @@
   --ease-snap: cubic-bezier(0.2, 0.9, 0.2, 1.08);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 
-  --shadow-lift: 0 calc(var(--u) * 14) calc(var(--u) * 34) rgba(0, 0, 0, 0.55);
-  --shadow-soft: 0 calc(var(--u) * 6) calc(var(--u) * 18) rgba(0, 0, 0, 0.4);
-
   --nav-h: calc(var(--u) * 76);
   --bar-h: calc(var(--u) * 46);
+
+  /*
+    Semantic tokens — what a colour is FOR. Components use these, never the raw palette above,
+    so the black theme and the white theme are the same components with a different table.
+
+    Black theme (the main one).
+  */
+  color-scheme: dark;
+
+  --page: #000000;                    /* the screen behind everything */
+  --bar-1: #19191b;                   /* top bar, top of its gradient */
+  --bar-2: #111112;                   /* top bar, bottom */
+  --card-1: #232326;                  /* card, lit corner */
+  --card-2: #131315;                  /* card, far corner */
+  --card-flat: #151517;               /* card with no gradient */
+  --slab: #2b2b2f;                    /* hover slab behind a tab or icon */
+  --slab-on: #1e1e21;                 /* the same, for the current item */
+  --track: #3c3c42;                   /* meter and ring tracks, idle pips */
+  --plate-1: rgba(34, 34, 37, 0.94);  /* translucent plate over the picture, lit side */
+  --plate-2: rgba(16, 16, 17, 0.9);   /* translucent plate, far side */
+  --well: #000000;                    /* recessed tile inside a plate */
+
+  --text: #ffffff;                    /* headings, numbers */
+  --text-soft: #e2e4e8;               /* body copy */
+  --text-mute: #c2c6cc;               /* supporting copy */
+  --text-dim: #9a9fa8;                /* notes, idle tab labels */
+  --text-faint: #6d727b;              /* least important */
+  --hot: #ffd21f;                     /* emphasised text: current tab, tier name, rewards */
+
+  --go: #ffd21f;                      /* the primary action fill */
+  --on-go: #000000;
+  --go-glow: rgba(255, 210, 31, 0.5);
+  --counter: #ffffff;                 /* the secondary action fill: the opposite of the page */
+  --on-counter: #000000;
+  --prime: var(--silver-sheen);       /* the always-on product tab */
+  --on-prime: #000000;
+  --key: #e2e4e8;                     /* keycap */
+  --on-key: #000000;
+
+  --heat: #cf5220;                    /* brand heat */
+  --heat-hot: #ee6a2c;
+  --heat-deep: #8f3411;
+  --good: #2fc276;                    /* progress, success, online */
+  --good-deep: #14784a;
+  --alert: #e5363b;                   /* new, live, unread */
+
+  --label: #000000;                   /* a label chip that reads the same in both themes */
+  --on-label: #ffffff;
+  --on-heat: #ffffff;                 /* type on burnt orange */
+  --on-alert: #ffffff;                /* type on red */
+  --on-good: #000000;                 /* type on green */
+  --hi: 255, 255, 255;                /* the lit edge of a surface, as r, g, b */
+  --lo: 0, 0, 0;                      /* the shaded underside of a surface, as r, g, b */
+
+  --type-drop: rgba(0, 0, 0, 0.85);   /* the hard offset under display type */
+  --shade: 0, 0, 0;                   /* shadow colour as r, g, b */
+  --shadow-lift: 0 calc(var(--u) * 14) calc(var(--u) * 34) rgba(var(--shade), 0.55);
+  --shadow-soft: 0 calc(var(--u) * 6) calc(var(--u) * 18) rgba(var(--shade), 0.4);
+  --veil: 0, 0, 0;                    /* scrims and vignettes over the picture, as r, g, b */
+  --grain: 255, 255, 255;             /* the tone textures are drawn in (halftone, hatch), as r, g, b */
+}
+
+/*
+  White theme. Same roles, opposite values: white and pale silver carry the surfaces,
+  black carries the text and the secondary action, the accents keep their jobs.
+  Yellow cannot be text on white, so emphasis moves to burnt orange.
+*/
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --page: #eef0f3;
+  --bar-1: #ffffff;
+  --bar-2: #f1f2f5;
+  --card-1: #ffffff;
+  --card-2: #eff1f4;
+  --card-flat: #ffffff;
+  --slab: #e2e5ea;
+  --slab-on: #eceef2;
+  --track: #d3d7dd;
+  --plate-1: rgba(255, 255, 255, 0.95);
+  --plate-2: rgba(241, 243, 246, 0.92);
+  --well: #e6e8ec;
+
+  --text: #000000;
+  --text-soft: #18181b;
+  --text-mute: #33343a;
+  --text-dim: #555962;
+  --text-faint: #858a94;
+  --hot: #b9410f;
+
+  --go: #ffd21f;
+  --on-go: #000000;
+  --go-glow: rgba(230, 180, 0, 0.42);
+  --counter: #000000;
+  --on-counter: #ffffff;
+  --prime: linear-gradient(112deg, #2b2b2f 0%, #000000 46%, #3c3c42 72%, #111112 100%);
+  --on-prime: #ffffff;
+  --key: #18181b;
+  --on-key: #ffffff;
+
+  --heat: #cf5220;
+  --heat-hot: #e2601f;
+  --heat-deep: #8f3411;
+  --good: #1fa463;
+  --good-deep: #0f6b3f;
+  --alert: #d92c31;
+
+  --type-drop: #cfd3da;               /* a pale silver print offset: a white one vanishes on the page */
+  --shade: 34, 40, 52;
+  --shadow-lift: 0 calc(var(--u) * 14) calc(var(--u) * 34) rgba(var(--shade), 0.2);
+  --shadow-soft: 0 calc(var(--u) * 6) calc(var(--u) * 18) rgba(var(--shade), 0.14);
+  --veil: 238, 240, 243;
+  --grain: 0, 0, 0;
 }
 
 /* narrow or portrait screens: the unit is tied to the width alone and the menu re-stacks */

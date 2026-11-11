@@ -1,0 +1,221 @@
+/* HOME next stage: the pathway chip with its stage pips, and the two actions. */
+
+/* ── next stage ────────────────────────────────────────────────── */
+.next {
+  position: absolute;
+  z-index: 10;
+  right: calc(var(--u) * 60);
+  bottom: calc(var(--bar-h) + var(--u) * 30);
+  display: grid;
+  justify-items: end;
+  gap: calc(var(--u) * 18);
+}
+
+.next-chip {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: calc(var(--u) * 20);
+  row-gap: calc(var(--u) * 13);
+  min-width: calc(var(--u) * 548);
+  margin-right: calc(var(--u) * 24);
+  padding: calc(var(--u) * 18) calc(var(--u) * 34) calc(var(--u) * 17) calc(var(--u) * 28);
+}
+
+.next-chip::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: var(--r-m);
+  background: linear-gradient(105deg, var(--plate-1), var(--plate-2));
+  transform: skewX(var(--lean));
+  box-shadow: var(--shadow-lift);
+}
+
+/* the skin is shared with the rail plates (rail.css); the ghost here is the stage number */
+.next-chip .plate-skin > .k-ghost {
+  --k-size: 168;
+  --k-x: calc(var(--u) * 26);
+  --k-y: -0.3em;
+}
+
+.next-chip .plate-skin > .k-hatch { --k-reach: 32%; }
+
+/* the arena mark: a black label tile with a fine hatch and a folded corner */
+.next-arena {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  width: calc(var(--u) * 78);
+  height: calc(var(--u) * 78);
+  color: var(--go);
+}
+
+.next-arena::before,
+.next-arena::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: var(--r-m);
+  transform: skewX(var(--lean));
+}
+
+.next-arena::before {
+  background: var(--label);
+  box-shadow: 0 calc(var(--u) * 6) calc(var(--u) * 14) rgba(var(--shade), 0.35);
+}
+
+.next-arena::after {
+  background:
+    linear-gradient(180deg, rgba(var(--hi), 0.14) 0 calc(var(--u) * 1.5), transparent calc(var(--u) * 1.5)),
+    linear-gradient(135deg, transparent 0 50%, color-mix(in srgb, var(--go) 22%, transparent) 50%) 100% 100% / calc(var(--u) * 20) calc(var(--u) * 20) no-repeat,
+    repeating-linear-gradient(102deg, rgba(var(--hi), 0.06) 0 calc(var(--u) * 1.5), transparent 0 calc(var(--u) * 6)),
+    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--go) 18%, transparent) 0%, transparent 62%);
+}
+
+.next-arena svg {
+  width: calc(var(--u) * 46);
+  height: calc(var(--u) * 46);
+  filter: drop-shadow(calc(var(--u) * 2) calc(var(--u) * 2) 0 color-mix(in srgb, var(--heat) 80%, transparent));
+}
+
+.next-copy {
+  display: grid;
+  gap: calc(var(--u) * 4);
+}
+
+.next-path,
+.next-meta {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 12);
+  font-size: calc(var(--u) * 16.5);
+  font-weight: 700;
+  color: var(--text-mute);
+}
+
+.next-path i {
+  position: relative;
+  font-style: normal;
+  color: var(--text-faint);
+}
+
+/* a leaning rule between the pathway and the stage */
+.next-path i::before {
+  content: '';
+  position: absolute;
+  left: calc(var(--u) * -7);
+  top: 18%;
+  bottom: 18%;
+  width: calc(var(--u) * 2);
+  border-radius: calc(var(--u) * 1);
+  background: var(--heat);
+  transform: skewX(var(--lean));
+}
+
+.next-title {
+  font-size: calc(var(--u) * 44);
+  font-weight: 900;
+  color: var(--text);
+}
+
+/* the reward: yellow on a black label chip, so it reads on either page */
+.next-meta b {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--u) * 5);
+  padding: 0 calc(var(--u) * 9) 0 calc(var(--u) * 7);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 800;
+  font-size: calc(var(--u) * 21);
+  color: var(--go);
+}
+
+.next-meta b::before {
+  content: '';
+  position: absolute;
+  inset: calc(var(--u) * -1) 0;
+  z-index: -1;
+  border-radius: calc(var(--u) * 4);
+  background:
+    linear-gradient(180deg, rgba(var(--hi), 0.12) 0 calc(var(--u) * 1), transparent calc(var(--u) * 1)),
+    var(--label);
+  transform: skewX(var(--lean));
+}
+
+.next-meta b svg {
+  width: calc(var(--u) * 18);
+  height: calc(var(--u) * 18);
+}
+
+/* the stages: hatched when ahead, lit and solid when done, the current one glows */
+.next-pips {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: calc(var(--u) * 7);
+  margin: 0;
+  padding: 0 0 0 calc(var(--u) * 2);
+  list-style: none;
+}
+
+.next-pips li {
+  flex: 1;
+  height: calc(var(--u) * 8);
+  border-radius: 99px;
+  background:
+    repeating-linear-gradient(102deg, rgba(var(--grain), 0.13) 0 calc(var(--u) * 1.5), transparent 0 calc(var(--u) * 5)),
+    var(--track);
+  transform: skewX(var(--lean));
+  animation: pip-in 0.5s var(--ease-out) backwards;
+  animation-delay: calc(var(--p) * 45ms + 1050ms);
+}
+
+.next-pips li.is-done {
+  background:
+    linear-gradient(180deg, rgba(var(--hi), 0.45) 0 calc(var(--u) * 1.5), transparent calc(var(--u) * 1.5) 60%, rgba(var(--lo), 0.16) 60%),
+    var(--good);
+}
+
+.next-pips li.is-now {
+  background:
+    linear-gradient(180deg, rgba(var(--hi), 0.6) 0 calc(var(--u) * 1.5), transparent calc(var(--u) * 1.5) 60%, rgba(var(--lo), 0.12) 60%),
+    var(--go);
+  box-shadow: 0 0 calc(var(--u) * 14) color-mix(in srgb, var(--go) 70%, transparent);
+  animation: pip-in 0.5s var(--ease-out) backwards, pip-now 1.6s ease-in-out 1.8s infinite;
+  animation-delay: calc(var(--p) * 45ms + 1050ms), 1.8s;
+}
+
+@keyframes pip-in {
+  from { opacity: 0; transform: skewX(var(--lean)) scaleX(0.2); }
+}
+
+@keyframes pip-now {
+  50% { opacity: 0.45; }
+}
+
+.next-actions {
+  display: flex;
+  align-items: flex-end;
+  gap: calc(var(--u) * 20);
+}
+
+@media (max-aspect-ratio: 1/1), (max-width: 820px) {
+  .next {
+    left: calc(var(--u) * 28);
+    right: calc(var(--u) * 28);
+    justify-items: stretch;
+    bottom: calc(var(--bar-h) + var(--u) * 14);
+  }
+
+  .next-chip { min-width: 0; margin-right: 0; }
+  .next-actions { justify-content: flex-end; }
+  .btn.is-go { flex: 1; }
+}

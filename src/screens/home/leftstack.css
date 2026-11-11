@@ -1,0 +1,694 @@
+/* HOME left stack: promo carousel, season pass card, quest rings, collapse toggle. */
+
+/* ── left stack ────────────────────────────────────────────────── */
+.stack {
+  position: absolute;
+  z-index: 10;
+  left: calc(var(--u) * 38);
+  top: calc(var(--nav-h) + var(--u) * 30);
+  width: calc(var(--u) * 388);
+}
+
+.stack-items {
+  display: grid;
+  gap: calc(var(--u) * 14);
+  transition: transform 0.6s var(--ease-out), opacity 0.3s ease;
+}
+
+.stack.is-closed .stack-items {
+  transform: translate3d(-112%, 0, 0) skewX(-5deg);
+  opacity: 0;
+}
+
+/* the drawn inside of a card: planes, print, ghost glyph, tooth and the lit edge */
+.card-skin {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.card-skin > .k-facets { --k-o: 0.045; }
+.card-skin > .k-hatch { --k-fade: 270deg; --k-reach: 46%; }
+.card-skin > .k-ghost { --k-size: 120; --k-x: calc(var(--u) * 14); --k-y: -0.24em; }
+
+.stack-toggle {
+  position: absolute;
+  isolation: isolate;
+  top: 0;
+  left: calc(100% + var(--u) * 16);
+  display: grid;
+  place-items: center;
+  width: calc(var(--u) * 58);
+  height: calc(var(--u) * 46);
+  color: var(--text);
+  transition: left 0.6s var(--ease-out), transform 0.2s var(--ease-out);
+}
+
+.stack-toggle::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: var(--r-s);
+  background:
+    linear-gradient(180deg, rgba(var(--hi), 0.08) 0 calc(var(--u) * 1.5), transparent calc(var(--u) * 1.5)),
+    linear-gradient(0deg, rgba(var(--shade), 0.3) 0 calc(var(--u) * 3), transparent calc(var(--u) * 3)),
+    linear-gradient(135deg, transparent 0 50%, rgba(var(--shade), 0.24) 50%) 100% 100% / calc(var(--u) * 14) calc(var(--u) * 14) no-repeat,
+    linear-gradient(116deg, rgba(var(--hi), 0.06) 0 40%, transparent 40.2%),
+    var(--slab-on);
+  transform: skewX(var(--lean));
+  box-shadow: var(--shadow-soft);
+  transition: background-color 0.16s ease;
+}
+
+.stack-toggle svg {
+  width: calc(var(--u) * 22);
+  height: calc(var(--u) * 22);
+  transition: transform 0.5s var(--ease-out);
+}
+
+.stack-toggle:hover::before,
+.stack-toggle:focus-visible::before {
+  background:
+    linear-gradient(180deg, rgba(var(--hi), 0.6) 0 calc(var(--u) * 1.5), transparent calc(var(--u) * 1.5)),
+    linear-gradient(0deg, rgba(var(--lo), 0.14) 0 calc(var(--u) * 3), transparent calc(var(--u) * 3)),
+    var(--go);
+}
+
+.stack-toggle:hover,
+.stack-toggle:focus-visible { color: var(--on-go); }
+.stack-toggle:active { transform: scale(0.93); }
+
+.stack.is-closed .stack-toggle { left: 0; }
+.stack.is-closed .stack-toggle svg { transform: scaleX(-1); }
+
+/* ── promo carousel ────────────────────────────────────────────── */
+.promo {
+  position: relative;
+  height: calc(var(--u) * 212);
+  border-radius: var(--r-l);
+  overflow: hidden;
+  background: var(--card-flat);
+  box-shadow: var(--shadow-lift);
+  transition: transform 0.4s var(--ease-out);
+}
+
+.promo:hover { transform: translate3d(calc(var(--u) * 5), 0, 0); }
+
+.promo-slide {
+  /* each slide is a piece of art: its type colour, print offset and copy shade come with it */
+  --promo-ink: var(--text);
+  --promo-drop: var(--type-drop);
+  --promo-shade: rgb(var(--veil));
+  position: absolute;
+  inset: 0;
+  display: block;
+  text-align: left;
+  overflow: hidden;
+  color: var(--promo-ink);
+}
+
+.promo-slide.is-avatar {
+  background:
+    linear-gradient(102deg, var(--go) 0 13%, transparent 13.2% 100%),
+    linear-gradient(102deg, transparent 0 56%, var(--go) 56.2% 83%, transparent 83.2% 100%),
+    linear-gradient(140deg, var(--card-1), var(--card-2));
+}
+
+.promo-slide.is-cup {
+  --promo-ink: var(--on-heat);
+  --promo-drop: rgba(var(--lo), 0.7);
+  --promo-shade: color-mix(in srgb, var(--heat-deep) 38%, rgb(var(--lo)));
+  background:
+    repeating-linear-gradient(102deg, rgba(var(--lo), 0.16) 0 calc(var(--u) * 9), transparent calc(var(--u) * 9) calc(var(--u) * 46)),
+    linear-gradient(120deg, var(--heat-deep) 0%, var(--heat) 46%, var(--heat-hot) 100%);
+}
+
+.promo-slide.is-arena {
+  background:
+    linear-gradient(color-mix(in srgb, var(--good) 16%, transparent) calc(var(--u) * 1.5), transparent calc(var(--u) * 1.5)) 0 0 / 100% calc(var(--u) * 26),
+    linear-gradient(90deg, color-mix(in srgb, var(--good) 16%, transparent) calc(var(--u) * 1.5), transparent calc(var(--u) * 1.5)) 0 0 / calc(var(--u) * 26) 100%,
+    radial-gradient(120% 120% at 86% 30%, color-mix(in srgb, var(--good-deep) 42%, var(--card-2)) 0%, var(--card-2) 62%);
+}
+
+.promo-art {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* a shade under the copy, so the words hold on any art */
+.promo-slide::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    98deg,
+    color-mix(in srgb, var(--promo-shade) 86%, transparent) 0%,
+    color-mix(in srgb, var(--promo-shade) 62%, transparent) 34%,
+    transparent 62%
+  );
+  pointer-events: none;
+}
+
+.promo-copy,
+.promo-flag { z-index: 1; }
+
+.promo-serial {
+  position: absolute;
+  z-index: 1;
+  left: calc(var(--u) * 22);
+  top: calc(var(--u) * 18);
+  --k-ink: var(--go);
+  color: color-mix(in srgb, var(--promo-ink) 72%, transparent);
+}
+
+/* avatar: hazard bands printed with dots, a ghosted number, the bust as a sticker */
+.promo-art.is-avatar .promo-print {
+  --k-ink: rgba(var(--lo), 0.2);
+  --k-step: 8;
+  --k-dot: 1.6;
+  --k-fade: 200deg;
+  --k-reach: 80%;
+}
+
+.promo-ghost {
+  --k-size: 210;
+  --k-x: 36%;
+  --k-y: -0.26em;
+}
+
+.promo-art.is-avatar img {
+  position: absolute;
+  right: calc(var(--u) * -62);
+  top: calc(var(--u) * -4);
+  height: 158%;
+  filter:
+    drop-shadow(calc(var(--u) * 2.5) 0 0 rgb(var(--hi)))
+    drop-shadow(calc(var(--u) * -2.5) 0 0 rgb(var(--hi)))
+    drop-shadow(0 calc(var(--u) * -2.5) 0 rgb(var(--hi)))
+    drop-shadow(calc(var(--u) * 6) calc(var(--u) * 4) 0 var(--heat))
+    drop-shadow(calc(var(--u) * -10) calc(var(--u) * 8) calc(var(--u) * 14) rgba(var(--shade), 0.55));
+  transition: transform 0.7s var(--ease-out);
+}
+
+.promo:hover .promo-art.is-avatar img { transform: scale(1.05) translate3d(calc(var(--u) * -6), 0, 0); }
+
+/* cup: lit planes on the paint, a slow burst behind the trophy, a print and speed lines */
+.promo-facets { --k-o: 0.07; }
+.promo-art.is-arena .promo-facets { --k-o: 0.05; }
+
+.promo-rays {
+  inset: auto;
+  right: calc(var(--u) * -46);
+  top: calc(var(--u) * -70);
+  width: calc(var(--u) * 330);
+  height: calc(var(--u) * 330);
+  --k-ink: rgba(var(--hi), 0.12);
+}
+
+.promo-art.is-cup svg {
+  position: absolute;
+  right: calc(var(--u) * 6);
+  top: calc(var(--u) * 6);
+  width: calc(var(--u) * 190);
+  height: calc(var(--u) * 190);
+  color: rgba(var(--lo), 0.3);
+  transform: rotate(10deg);
+  filter: drop-shadow(calc(var(--u) * -6) calc(var(--u) * 6) 0 rgba(var(--hi), 0.12));
+  transition: transform 0.7s var(--ease-out);
+}
+
+.promo:hover .promo-art.is-cup svg { transform: rotate(4deg) scale(1.08); }
+
+.promo-art.is-cup .promo-print {
+  --k-ink: rgba(var(--lo), 0.2);
+  --k-step: 10;
+  --k-dot: 2;
+  --k-fade: 220deg;
+  --k-reach: 64%;
+}
+
+.promo-speed {
+  --k-ink: rgba(var(--hi), 0.4);
+  --k-angle: -22deg;
+  --k-dur: 5.5s;
+}
+
+/* arena: a radar sweep turning around the reticle */
+.promo-sweep {
+  position: absolute;
+  right: calc(var(--u) * -28);
+  top: calc(var(--u) * -32);
+  width: calc(var(--u) * 240);
+  height: calc(var(--u) * 240);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, transparent 0 34%, color-mix(in srgb, var(--good) 22%, transparent) 34.5% 35.5%, transparent 36% 62%, color-mix(in srgb, var(--good) 18%, transparent) 62.5% 63.5%, transparent 64%),
+    conic-gradient(from 0deg, color-mix(in srgb, var(--good) 34%, transparent), transparent 22%);
+  animation: k-spin 4.5s linear infinite;
+}
+
+.promo-reticle {
+  position: absolute;
+  right: calc(var(--u) * 34);
+  top: calc(var(--u) * 30);
+  width: calc(var(--u) * 116);
+  height: calc(var(--u) * 116);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, var(--good) 0 7%, transparent 8%),
+    radial-gradient(circle, transparent 0 46%, color-mix(in srgb, var(--good) 90%, transparent) 47% 53%, transparent 54%),
+    linear-gradient(var(--good), var(--good)) 50% 0 / calc(var(--u) * 4) 26% no-repeat,
+    linear-gradient(var(--good), var(--good)) 50% 100% / calc(var(--u) * 4) 26% no-repeat,
+    linear-gradient(var(--good), var(--good)) 0 50% / 26% calc(var(--u) * 4) no-repeat,
+    linear-gradient(var(--good), var(--good)) 100% 50% / 26% calc(var(--u) * 4) no-repeat;
+  animation: reticle 5s ease-in-out infinite;
+}
+
+@keyframes reticle {
+  50% { transform: scale(0.86) rotate(45deg); }
+}
+
+.promo-copy {
+  position: absolute;
+  left: calc(var(--u) * 22);
+  bottom: calc(var(--u) * 20);
+  display: grid;
+  justify-items: start;
+  gap: calc(var(--u) * 5);
+}
+
+/* the kicker is a black label chip, led by a slash of the action colour */
+.promo-kicker {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 7);
+  padding: calc(var(--u) * 3) calc(var(--u) * 11) calc(var(--u) * 3) calc(var(--u) * 9);
+  border-radius: calc(var(--u) * 5);
+  background:
+    linear-gradient(180deg, rgba(var(--hi), 0.12) 0 calc(var(--u) * 1), transparent calc(var(--u) * 1)),
+    var(--label);
+  color: var(--on-label);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 700;
+  font-size: calc(var(--u) * 17);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transform: skewX(var(--lean));
+}
+
+.promo-kicker::before {
+  content: '';
+  width: calc(var(--u) * 4);
+  height: calc(var(--u) * 13);
+  border-radius: calc(var(--u) * 1);
+  background: var(--go);
+}
+
+.promo-title {
+  font-size: calc(var(--u) * 46);
+  font-weight: 900;
+  color: var(--promo-ink);
+  text-shadow: calc(var(--u) * 3) calc(var(--u) * 3) 0 var(--promo-drop);
+}
+
+.promo-line {
+  max-width: calc(var(--u) * 190);
+  font-size: calc(var(--u) * 16);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--promo-ink);
+  text-shadow: 0 calc(var(--u) * 1) calc(var(--u) * 6) color-mix(in srgb, var(--promo-shade) 90%, transparent);
+}
+
+.promo-flag {
+  position: absolute;
+  top: calc(var(--u) * 14);
+  right: calc(var(--u) * 14);
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 6);
+  padding: calc(var(--u) * 3) calc(var(--u) * 12);
+  border-radius: calc(var(--u) * 5);
+  background:
+    linear-gradient(180deg, rgba(var(--hi), 0.3) 0 calc(var(--u) * 1.2), transparent calc(var(--u) * 1.2) 60%, rgba(var(--lo), 0.2) 60%),
+    var(--alert);
+  color: var(--on-alert);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 800;
+  font-size: calc(var(--u) * 18);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transform: skewX(var(--lean));
+  box-shadow: 0 calc(var(--u) * 3) calc(var(--u) * 10) rgba(var(--shade), 0.35);
+}
+
+/* LIVE beats */
+.promo-flag.is-live::before {
+  content: '';
+  width: calc(var(--u) * 7);
+  height: calc(var(--u) * 7);
+  border-radius: 50%;
+  background: var(--on-alert);
+  animation: live 1.2s ease-in-out infinite;
+}
+
+@keyframes live {
+  50% { opacity: 0.25; transform: scale(0.7); }
+}
+
+.promo-pips {
+  position: absolute;
+  right: calc(var(--u) * 16);
+  bottom: calc(var(--u) * 14);
+  display: flex;
+  gap: calc(var(--u) * 6);
+}
+
+.promo-pip {
+  width: calc(var(--u) * 15);
+  height: calc(var(--u) * 20);
+  display: grid;
+  align-items: center;
+  transition: width 0.4s var(--ease-out);
+}
+
+.promo-pip::before {
+  content: '';
+  grid-area: 1 / 1;
+  height: calc(var(--u) * 7);
+  border-radius: 99px;
+  background: rgba(var(--grain), 0.45);
+  transform: skewX(var(--lean));
+}
+
+.promo-pip i {
+  grid-area: 1 / 1;
+  height: calc(var(--u) * 7);
+  border-radius: 99px;
+  background: rgb(var(--grain));
+  transform: skewX(var(--lean)) scaleX(0);
+  transform-origin: 0 50%;
+}
+
+.promo-pip.is-on { width: calc(var(--u) * 46); }
+
+.promo-pip.is-on i {
+  animation: pip-fill var(--slide) linear forwards;
+}
+
+.promo-pip.is-held i { animation-play-state: paused; }
+
+@keyframes pip-fill {
+  to { transform: skewX(var(--lean)) scaleX(1); }
+}
+
+/* ── season pass card ──────────────────────────────────────────── */
+.season {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 18);
+  width: 100%;
+  padding: calc(var(--u) * 17) calc(var(--u) * 22);
+  border-radius: var(--r-l);
+  background: linear-gradient(110deg, var(--card-1) 0%, var(--card-2) 70%);
+  box-shadow: var(--shadow-lift);
+  text-align: left;
+  transition: transform 0.4s var(--ease-out);
+}
+
+.season:hover,
+.season:focus-visible { transform: translate3d(calc(var(--u) * 5), 0, 0); }
+
+/* the pass level: a painted tile, lit on top, printed with dots and labelled */
+.season-level {
+  position: relative;
+  isolation: isolate;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: calc(var(--u) * 70);
+  height: calc(var(--u) * 76);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 900;
+  font-size: calc(var(--u) * 46);
+  color: var(--on-heat);
+}
+
+.season-level::before,
+.season-level::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: var(--r-m);
+  transform: skewX(var(--lean));
+}
+
+.season-level::before {
+  background:
+    linear-gradient(180deg, rgba(var(--hi), 0.4) 0 calc(var(--u) * 1.5), transparent calc(var(--u) * 1.5)),
+    linear-gradient(0deg, rgba(var(--lo), 0.26) 0 calc(var(--u) * 4), transparent calc(var(--u) * 4)),
+    linear-gradient(135deg, transparent 0 50%, rgba(var(--lo), 0.2) 50%) 100% 100% / calc(var(--u) * 18) calc(var(--u) * 18) no-repeat,
+    linear-gradient(112deg, rgba(var(--hi), 0.18) 0 30%, transparent 30.2%),
+    linear-gradient(160deg, var(--heat-hot), var(--heat) 55%, var(--heat-deep));
+  box-shadow: 0 calc(var(--u) * 6) calc(var(--u) * 16) color-mix(in srgb, var(--heat-deep) 45%, transparent);
+}
+
+.season-level::after {
+  background: radial-gradient(circle, rgba(var(--lo), 0.24) 0 calc(var(--u) * 1.5), transparent calc(var(--u) * 2.1)) 0 0 / calc(var(--u) * 7) calc(var(--u) * 7);
+  -webkit-mask-image: linear-gradient(330deg, #000 0%, transparent 62%);
+  mask-image: linear-gradient(330deg, #000 0%, transparent 62%);
+}
+
+.season-level b {
+  font-weight: inherit;
+  color: var(--on-heat);
+  text-shadow: calc(var(--u) * 2) calc(var(--u) * 2) 0 rgba(var(--lo), 0.35);
+}
+
+.season-lv {
+  position: absolute;
+  left: calc(var(--u) * 13);
+  top: calc(var(--u) * 7);
+  font-size: calc(var(--u) * 12);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  color: color-mix(in srgb, var(--on-heat) 78%, transparent);
+}
+
+.season-copy {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: calc(var(--u) * 5);
+}
+
+.season-title {
+  font-size: calc(var(--u) * 30);
+  color: var(--text);
+}
+
+.season-sub,
+.season-xp {
+  font-size: calc(var(--u) * 15);
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.season-xp {
+  font-variant-numeric: tabular-nums;
+}
+
+.season-claim {
+  position: absolute;
+  right: calc(var(--u) * -9);
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: calc(var(--u) * 40);
+  height: calc(var(--u) * 48);
+  margin-top: calc(var(--u) * -24);
+  border-radius: var(--r-s);
+  background:
+    linear-gradient(180deg, rgba(var(--hi), 0.7) 0 calc(var(--u) * 1.5), transparent calc(var(--u) * 1.5)),
+    linear-gradient(0deg, rgba(var(--lo), 0.16) 0 calc(var(--u) * 4), transparent calc(var(--u) * 4)),
+    linear-gradient(135deg, transparent 0 50%, rgba(var(--lo), 0.14) 50%) 100% 100% / calc(var(--u) * 14) calc(var(--u) * 14) no-repeat,
+    var(--go);
+  color: var(--on-go);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 900;
+  font-size: calc(var(--u) * 28);
+  transform: skewX(var(--lean));
+  box-shadow: 0 0 calc(var(--u) * 22) color-mix(in srgb, var(--go) 45%, transparent);
+  animation: claim 2.6s ease-in-out 2.2s infinite;
+}
+
+@keyframes claim {
+  0%, 70%, 100% { transform: skewX(var(--lean)) scale(1); }
+  80% { transform: skewX(var(--lean)) scale(1.16); }
+  90% { transform: skewX(var(--lean)) scale(0.96); }
+}
+
+/* ── quests ────────────────────────────────────────────────────── */
+.quests {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding: calc(var(--u) * 14) calc(var(--u) * 8) calc(var(--u) * 13);
+  border-radius: var(--r-l);
+  background: linear-gradient(110deg, var(--card-1) 0%, var(--card-2) 70%);
+  box-shadow: var(--shadow-lift);
+}
+
+.quests > .card-skin > .k-hatch { --k-fade: 180deg; --k-reach: 60%; }
+
+.quest {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: calc(var(--u) * 3);
+  padding: calc(var(--u) * 4) 0;
+  border-radius: var(--r-m);
+  transition: transform 0.3s var(--ease-snap), background-color 0.16s ease;
+}
+
+/* a leaning rule between the three */
+.quest + .quest::before {
+  content: '';
+  position: absolute;
+  left: calc(var(--u) * -1);
+  top: 16%;
+  bottom: 16%;
+  width: calc(var(--u) * 2);
+  border-radius: calc(var(--u) * 1);
+  background: rgba(var(--grain), 0.08);
+  transform: skewX(var(--lean));
+}
+
+.quest:hover,
+.quest:focus-visible {
+  transform: translate3d(0, calc(var(--u) * -4), 0);
+  background: rgba(var(--grain), 0.06);
+}
+
+.quest-ring {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: calc(var(--u) * 66);
+  height: calc(var(--u) * 66);
+  color: var(--text-soft);
+}
+
+.quest-ring > svg:first-child {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform: rotate(-90deg);
+}
+
+.quest-ring > svg:last-child {
+  width: calc(var(--u) * 28);
+  height: calc(var(--u) * 28);
+  transition: transform 0.3s var(--ease-snap), color 0.16s ease;
+}
+
+.quest:hover .quest-ring > svg:last-child { transform: scale(1.14); color: var(--text); }
+
+.quest-track,
+.quest-fill,
+.quest-dash {
+  fill: none;
+  stroke-width: 5.5;
+}
+
+.quest-track { stroke: var(--track); }
+
+/* the dashed inner ring of the reference badges */
+.quest-dash {
+  stroke: rgba(var(--grain), 0.22);
+  stroke-width: 2;
+  stroke-dasharray: 2.2 2.8;
+  transform-origin: 32px 32px;
+  animation: k-spin 30s linear infinite;
+}
+
+.quest-fill {
+  stroke: var(--good);
+  stroke-linecap: round;
+  stroke-dasharray: var(--pct) 100;
+  animation: ring 1.2s var(--ease-out) backwards;
+  animation-delay: calc(var(--q) * 120ms + 1000ms);
+}
+
+/* a lit head at the end of the arc */
+.quest-cap {
+  fill: var(--text);
+  animation: fade-in 0.4s ease backwards;
+  animation-delay: calc(var(--q) * 120ms + 2100ms);
+}
+
+@keyframes ring {
+  from { stroke-dasharray: 0 100; }
+}
+
+.quest-count {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 700;
+  font-size: calc(var(--u) * 25);
+  line-height: 1;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.quest-count b {
+  font-weight: 800;
+  color: var(--text);
+}
+
+.quest-label {
+  font-size: calc(var(--u) * 14);
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+@media (max-aspect-ratio: 1/1), (max-width: 820px) {
+  .stack-toggle { display: none; }
+
+  .stack {
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: calc(var(--bar-h) + var(--u) * 286);
+    width: auto;
+  }
+
+  .stack-items {
+    grid-auto-flow: column;
+    grid-auto-columns: calc(var(--u) * 380);
+    align-items: stretch;
+    overflow-x: auto;
+    padding: calc(var(--u) * 20) calc(var(--u) * 28);
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .stack-items > * { scroll-snap-align: start; }
+  .promo { height: auto; min-height: calc(var(--u) * 190); }
+}

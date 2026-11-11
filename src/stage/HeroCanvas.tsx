@@ -1,10 +1,11 @@
 import { useEffect, useRef } from 'react';
-import { HeroStage, type Framing } from './HeroStage';
+import { HeroStage, type Framing, type StageTheme } from './HeroStage';
 
 type Props = {
   url: string;
   framing: Framing;
   yaw?: number;
+  theme?: StageTheme;
   className?: string;
   /** pointer position is read from the window so the character follows the cursor over the whole screen */
   onReady?: () => void;
@@ -13,7 +14,7 @@ type Props = {
   flourishKey?: number;
 };
 
-export function HeroCanvas({ url, framing, yaw, className, onReady, onProgress, flourishKey = 0 }: Props) {
+export function HeroCanvas({ url, framing, yaw, theme = 'dark', className, onReady, onProgress, flourishKey = 0 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stageRef = useRef<HeroStage | null>(null);
   const ready = useRef(onReady);
@@ -29,6 +30,7 @@ export function HeroCanvas({ url, framing, yaw, className, onReady, onProgress, 
       url,
       framing,
       yaw,
+      theme,
       reducedMotion,
       onProgress: (f) => progress.current?.(f),
     });
@@ -60,6 +62,10 @@ export function HeroCanvas({ url, framing, yaw, className, onReady, onProgress, 
   useEffect(() => {
     stageRef.current?.setFraming(framing);
   }, [framing]);
+
+  useEffect(() => {
+    stageRef.current?.setTheme(theme);
+  }, [theme]);
 
   useEffect(() => {
     if (flourishKey > 0) stageRef.current?.flourish();

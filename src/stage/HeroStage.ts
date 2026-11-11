@@ -9,8 +9,11 @@ import { createPainterly } from './painterly';
  */
 export type Framing = { top: number; bottom: number; x: number };
 
+export type StageTheme = 'dark' | 'light';
+
 export type StageOptions = {
   url: string;
+  theme?: StageTheme;
   framing: Framing;
   /** resting turn of the body, radians; positive turns the character toward screen-left */
   yaw?: number;
@@ -19,6 +22,21 @@ export type StageOptions = {
 };
 
 const FOV = 21;
+
+/** Light per theme. The dark row is the look the owner approved; the light row lifts it for a pale page. */
+const LOOKS: Record<StageTheme, {
+  sky: number; ground: number; hemi: number; key: number; keyColor: number;
+  warm: number; cool: number; coolColor: number; rim: number; rimCool: number; env: number; exposure: number;
+}> = {
+  dark: {
+    sky: 0xffffff, ground: 0x8b8f99, hemi: 2.05, key: 2.5, keyColor: 0xfff3e4,
+    warm: 5.5, cool: 4.2, coolColor: 0xdfe9ff, rim: 1.15, rimCool: 0xe9f0ff, env: 0.28, exposure: 1.0,
+  },
+  light: {
+    sky: 0xffffff, ground: 0xc9ccd2, hemi: 2.55, key: 2.9, keyColor: 0xfffaf2,
+    warm: 3.2, cool: 1.6, coolColor: 0xffffff, rim: 0.55, rimCool: 0xffffff, env: 0.4, exposure: 1.04,
+  },
+};
 const CLIPS = { idle: 'idle', flourish: 'flourish' } as const;
 
 /** Tracks that never change are dropped: 509 bones ship keys, 87 actually move. */
@@ -55,6 +73,7 @@ export class HeroStage {
   private intro = 0;
   /** shared look controls for every material on the character */
   readonly look = createPainterly();
+  private hemi = new THREE.HemisphereLight(0xffffff, 0x8b8f99, 2.05);
   private keyLight = new THREE.DirectionalLight(0xfff3e4, 2.5);
   private rimWarm = new THREE.DirectionalLight(0xff6a24, 5.5);
   private rimCool = new THREE.DirectionalLight(0xdfe9ff, 4.2);
@@ -62,18 +81,19 @@ export class HeroStage {
   private framing: Framing;
   private yaw: number;
   private reduced: boolean;
+  private theme: StageTheme;
 
   constructor(private canvas: HTMLCanvasElement, private opts: StageOptions) {
     this.framing = opts.framing;
     this.yaw = opts.yaw ?? 0;
     this.reduced = !!opts.reducedMotion;
+    this.theme = opts.theme ?? 'dark';
 
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     // Neutral keeps the painted base colours where the artist put them; ACES would shift them.
     renderer.toneMapping = THREE.NeutralToneMapping;
-    renderer.toneMappingExposure = 1.0;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFShadowMap;
     renderer.setClearColor(0x000000, 0);
@@ -81,12 +101,11 @@ export class HeroStage {
 
     const pmrem = new THREE.PMREMGenerator(renderer);
     this.scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-    this.scene.environmentIntensity = 0.28;
     pmrem.dispose();
 
     // A high flat fill so the hand-painted albedo carries the image, a soft key for form,
     // two back lights for the rim that the reference lobby is built on.
-    this.scene.add(new THREE.HemisphereLight(0xffffff, 0x8b8f99, 2.05));
+    this.scene.add(this.hemi);
     this.keyLight.position.set(-2.6, 3.4, 4.2);
     this.keyLight.castShadow = true;
     this.keyLight.shadow.mapSize.set(2048, 2048);
@@ -99,6 +118,7 @@ export class HeroStage {
     this.rimCool.position.set(-3.6, 2.8, -2.6);
     this.scene.add(this.keyLight, this.keyLight.target, this.rimWarm, this.rimCool);
     this.keyLight.target.position.set(0, 1.1, 0);
+    this.applyTheme();
 
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(8, 8), new THREE.ShadowMaterial({ opacity: 0.42 }));
     floor.rotation.x = -Math.PI / 2;
@@ -199,6 +219,28 @@ export class HeroStage {
   setFraming(framing: Framing) {
     this.framing = framing;
     this.resize();
+  }
+
+  setTheme(theme: StageTheme) {
+    if (theme === this.theme) return;
+    this.theme = theme;
+    this.applyTheme();
+  }
+
+  private applyTheme() {
+    const l = LOOKS[this.theme];
+    this.hemi.color.setHex(l.sky);
+    this.hemi.groundColor.setHex(l.ground);
+    this.hemi.intensity = l.hemi;
+    this.keyLight.color.setHex(l.keyColor);
+    this.keyLight.intensity = l.key;
+    this.rimWarm.intensity = l.warm;
+    this.rimCool.intensity = l.cool;
+    this.rimCool.color.setHex(l.coolColor);
+    this.look.rimStrength.value = l.rim;
+    this.look.rimCool.setHex(l.rimCool);
+    this.scene.environmentIntensity = l.env;
+    this.renderer.toneMappingExposure = l.exposure;
   }
 
   /** One-shot personality move, then back to the idle. */

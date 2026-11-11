@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useState, type CSSProperties } from 'react';
 import { promos, quests, season, type Promo, type TabId } from '../../data/home';
 import { Icon, type IconName } from '../../ui/Icon';
+import './leftstack.css';
 
 const SLIDE_MS = 6500;
 
@@ -14,24 +15,42 @@ const slide = {
   exit: { opacity: 0.4, scale: 0.98 },
 };
 
-function PromoArt({ promo }: { promo: Promo }) {
+const pad = (n: number) => String(n).padStart(2, '0');
+
+/** The drawn art of each promotion: planes, print and a few marks behind the copy. */
+function PromoArt({ promo, order }: { promo: Promo; order: number }) {
+  const serial = `${promo.goto} · ${pad(order + 1)} / ${pad(promos.length)}`;
   if (promo.theme === 'avatar') {
     return (
       <div className="promo-art is-avatar">
+        <i className="k k-halftone promo-print" />
+        <i className="k k-ghost promo-ghost" data-k={pad(order + 1)} />
         <img src="/img/cast/clinician-bust.webp" alt="" draggable={false} />
+        <i className="k k-grain" />
+        <span className="k-serial promo-serial">{serial}</span>
       </div>
     );
   }
   if (promo.theme === 'cup') {
     return (
       <div className="promo-art is-cup">
+        <i className="k k-facets is-hi promo-facets" />
+        <i className="k k-rays promo-rays" />
         <Icon name="trophy" />
+        <i className="k k-halftone promo-print" />
+        <i className="k k-speed promo-speed" />
+        <i className="k k-grain" />
+        <span className="k-serial promo-serial">{serial}</span>
       </div>
     );
   }
   return (
     <div className="promo-art is-arena">
+      <i className="k k-facets promo-facets" />
+      <i className="promo-sweep" />
       <i className="promo-reticle" />
+      <i className="k k-grain" />
+      <span className="k-serial promo-serial">{serial}</span>
     </div>
   );
 }
@@ -74,13 +93,13 @@ export function LeftStack({ onNavigate }: { onNavigate: (tab: TabId) => void }) 
               exit="exit"
               transition={{ duration: 0.62, ease: [0.16, 1, 0.3, 1] }}
             >
-              <PromoArt promo={promo} />
+              <PromoArt promo={promo} order={index} />
               <span className="promo-copy">
                 <span className="promo-kicker">{promo.kicker}</span>
                 <span className="promo-title display">{promo.title}</span>
                 <span className="promo-line">{promo.line}</span>
               </span>
-              {promo.flag && <span className="promo-flag">{promo.flag}</span>}
+              {promo.flag && <span className={`promo-flag${promo.flag === 'Live' ? ' is-live' : ''}`}>{promo.flag}</span>}
             </motion.button>
           </AnimatePresence>
 
@@ -109,12 +128,22 @@ export function LeftStack({ onNavigate }: { onNavigate: (tab: TabId) => void }) 
           style={{ '--i': 1 } as CSSProperties}
           onClick={() => onNavigate('season')}
         >
+          <span className="card-skin" aria-hidden="true">
+            <i className="k k-facets" />
+            <i className="k k-hatch is-fade" />
+            <i className="k k-ghost" data-k={`S${pad(season.number)}`} />
+            <i className="k k-grain" />
+            <i className="k k-bevel" />
+          </span>
           <span className="season-level">
+            <span className="season-lv" aria-hidden="true">
+              Lv
+            </span>
             <b>{season.passLevel}</b>
           </span>
           <span className="season-copy">
             <span className="season-title display">
-              Season {String(season.number).padStart(2, '0')} {season.phase}
+              Season {pad(season.number)} {season.phase}
             </span>
             <span className="season-sub">
               Week {season.week} of {season.weeks}
@@ -135,6 +164,12 @@ export function LeftStack({ onNavigate }: { onNavigate: (tab: TabId) => void }) 
 
         {/* ── quests ─────────────────────────────────────────────── */}
         <div className="quests enter-l" style={{ '--i': 2 } as CSSProperties}>
+          <span className="card-skin" aria-hidden="true">
+            <i className="k k-facets is-b" />
+            <i className="k k-hatch is-fade" />
+            <i className="k k-grain" />
+            <i className="k k-bevel" />
+          </span>
           {quests.map((q, i) => {
             const pct = q.done / q.total;
             return (
@@ -149,6 +184,7 @@ export function LeftStack({ onNavigate }: { onNavigate: (tab: TabId) => void }) 
                 <span className="quest-ring">
                   <svg viewBox="0 0 64 64" aria-hidden="true">
                     <circle className="quest-track" cx="32" cy="32" r="28" />
+                    <circle className="quest-dash" cx="32" cy="32" r="21" pathLength={60} />
                     <circle
                       className="quest-fill"
                       cx="32"
@@ -157,6 +193,7 @@ export function LeftStack({ onNavigate }: { onNavigate: (tab: TabId) => void }) 
                       pathLength={100}
                       style={{ '--pct': pct * 100 } as CSSProperties}
                     />
+                    <circle className="quest-cap" cx="60" cy="32" r="3" transform={`rotate(${pct * 360} 32 32)`} />
                   </svg>
                   <Icon name={questIcon[q.id] ?? 'daily'} />
                 </span>

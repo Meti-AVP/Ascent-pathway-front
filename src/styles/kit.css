@@ -1,0 +1,236 @@
+/*
+  ASCENT kit — drawn detail
+  ─────────────────────────
+  The reference menu never leaves a surface as a flat colour: there is always a plane, a print,
+  a texture or a small mark inside it. These are the reusable pieces of that craft, translated
+  to the house rules: everything leans 12°, nothing is a stroke around a container, and every
+  colour comes from the semantic tokens (tone textures use --grain, edges use --hi / --lo,
+  accents use --heat / --go / --good / --alert), so each piece works in both themes.
+
+  Each primitive is a class for a decorative element (<i className="k k-…" aria-hidden />) that
+  fills its positioned parent. See docs/KIT.md.
+
+  The SVG textures (noise, facets, brush, chevron) are written straight into each class, not kept
+  in custom properties: a url() that arrives through var() is re-resolved on every style recalc
+  and the image is re-rasterised. A pseudo-element that needs one copies the url().
+*/
+
+/* every primitive is a decorative layer that fills its positioned parent */
+.k {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* 1 · halftone — a dot field that fades out along --k-fade */
+.k-halftone {
+  --k-ink: rgba(var(--grain), 0.34);
+  --k-step: 9;
+  --k-dot: 1.7;
+  background: radial-gradient(circle, var(--k-ink) 0 calc(var(--u) * var(--k-dot)), transparent calc(var(--u) * (var(--k-dot) + 0.7)))
+    0 0 / calc(var(--u) * var(--k-step)) calc(var(--u) * var(--k-step));
+  -webkit-mask-image: linear-gradient(var(--k-fade, 270deg), #000 0%, transparent var(--k-reach, 70%));
+  mask-image: linear-gradient(var(--k-fade, 270deg), #000 0%, transparent var(--k-reach, 70%));
+}
+
+.k-halftone.is-heat { --k-ink: color-mix(in srgb, var(--heat) 60%, transparent); }
+.k-halftone.is-lo { --k-ink: rgba(var(--lo), 0.16); }
+.k-halftone.is-hi { --k-ink: rgba(var(--hi), 0.32); }
+
+/* 2 · hatch — fine stripes at the house lean; .is-hazard for the wide bands */
+.k-hatch {
+  --k-ink: rgba(var(--grain), 0.06);
+  --k-w: 1.5;
+  --k-step: 9;
+  background: repeating-linear-gradient(102deg, var(--k-ink) 0 calc(var(--u) * var(--k-w)), transparent 0 calc(var(--u) * var(--k-step)));
+}
+
+.k-hatch.is-hazard { --k-w: 16; --k-step: 40; }
+
+.k-hatch.is-fade {
+  -webkit-mask-image: linear-gradient(var(--k-fade, 270deg), #000 0%, transparent var(--k-reach, 75%));
+  mask-image: linear-gradient(var(--k-fade, 270deg), #000 0%, transparent var(--k-reach, 75%));
+}
+
+/* 3 · grain — paper tooth over a surface */
+.k-grain {
+  background: rgb(var(--grain));
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2.6 -1.1'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E") 0 0 / calc(var(--u) * 240) calc(var(--u) * 240);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2.6 -1.1'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E") 0 0 / calc(var(--u) * 240) calc(var(--u) * 240);
+  opacity: var(--k-o, 0.1);
+}
+
+:root[data-theme='light'] .k-grain { opacity: calc(var(--k-o, 0.1) * 0.6); }
+
+/* 4 · facets — low-poly planes in the tone of the theme; .is-hi lights a coloured fill */
+.k-facets {
+  background: rgb(var(--grain));
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 90' preserveAspectRatio='none'%3E%3Cpath d='M0 0H54L18 90H0Z' fill-opacity='.5'/%3E%3Cpath d='M54 0H98L36 50Z' fill-opacity='.95'/%3E%3Cpath d='M36 50L98 0 80 90H18Z' fill-opacity='.26'/%3E%3Cpath d='M98 0H160V34Z' fill-opacity='.7'/%3E%3Cpath d='M98 0 160 34 134 90H80Z' fill-opacity='.1'/%3E%3Cpath d='M160 34V90H134Z' fill-opacity='1'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 90' preserveAspectRatio='none'%3E%3Cpath d='M0 0H54L18 90H0Z' fill-opacity='.5'/%3E%3Cpath d='M54 0H98L36 50Z' fill-opacity='.95'/%3E%3Cpath d='M36 50L98 0 80 90H18Z' fill-opacity='.26'/%3E%3Cpath d='M98 0H160V34Z' fill-opacity='.7'/%3E%3Cpath d='M98 0 160 34 134 90H80Z' fill-opacity='.1'/%3E%3Cpath d='M160 34V90H134Z' fill-opacity='1'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+  opacity: var(--k-o, 0.05);
+}
+
+.k-facets.is-b {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 90' preserveAspectRatio='none'%3E%3Cpath d='M0 0H72L0 44Z' fill-opacity='.85'/%3E%3Cpath d='M72 0 0 44V90H46Z' fill-opacity='.3'/%3E%3Cpath d='M72 0H124L46 90Z' fill-opacity='.62'/%3E%3Cpath d='M124 0H160V58Z' fill-opacity='.16'/%3E%3Cpath d='M124 0 160 58V90H46Z' fill-opacity='.42'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 90' preserveAspectRatio='none'%3E%3Cpath d='M0 0H72L0 44Z' fill-opacity='.85'/%3E%3Cpath d='M72 0 0 44V90H46Z' fill-opacity='.3'/%3E%3Cpath d='M72 0H124L46 90Z' fill-opacity='.62'/%3E%3Cpath d='M124 0H160V58Z' fill-opacity='.16'/%3E%3Cpath d='M124 0 160 58V90H46Z' fill-opacity='.42'/%3E%3C/svg%3E");
+}
+
+.k-facets.is-hi { background: rgb(var(--hi)); }
+.k-facets.is-lo { background: rgb(var(--lo)); }
+
+/* 5 · ghost — a giant glyph printed faintly inside a surface; data-k holds the glyph */
+.k-ghost { overflow: hidden; }
+
+.k-ghost::before {
+  content: attr(data-k);
+  position: absolute;
+  right: var(--k-x, -0.02em);
+  bottom: var(--k-y, -0.2em);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 900;
+  font-size: calc(var(--u) * var(--k-size, 150));
+  line-height: 1;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  color: var(--k-ink, rgba(var(--grain), 0.05));
+}
+
+/* 6 · ticks — registration marks in two opposite corners */
+.k-ticks {
+  --k-ink: rgba(var(--grain), 0.3);
+  --k-len: calc(var(--u) * 11);
+  --k-t: calc(var(--u) * 2);
+  inset: var(--k-in, calc(var(--u) * 7));
+  border-radius: 0;
+  background:
+    linear-gradient(var(--k-ink), var(--k-ink)) 0 0 / var(--k-len) var(--k-t),
+    linear-gradient(var(--k-ink), var(--k-ink)) 0 0 / var(--k-t) var(--k-len),
+    linear-gradient(var(--k-ink), var(--k-ink)) 100% 100% / var(--k-len) var(--k-t),
+    linear-gradient(var(--k-ink), var(--k-ink)) 100% 100% / var(--k-t) var(--k-len);
+  background-repeat: no-repeat;
+}
+
+/* 7 · serial — a micro-label, the small print of the interface */
+.k-serial {
+  font-family: var(--font-display);
+  font-style: normal;
+  font-weight: 600;
+  font-size: calc(var(--u) * 11.5);
+  line-height: 1;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.k-serial::before {
+  content: '';
+  display: inline-block;
+  width: calc(var(--u) * 5);
+  height: calc(var(--u) * 8);
+  margin-right: calc(var(--u) * 6);
+  border-radius: calc(var(--u) * 1.5);
+  background: var(--k-ink, var(--heat));
+  transform: skewX(var(--lean));
+  vertical-align: -0.04em;
+}
+
+/* 8 · chevrons — a run of arrows that travels in the reading direction */
+.k-chevrons {
+  --k-size: 22;
+  background: var(--k-ink, rgba(var(--lo), 0.1));
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M2 2h6.5l8 8-8 8H2l8-8z'/%3E%3C/svg%3E") 0 50% / calc(var(--u) * var(--k-size)) calc(var(--u) * var(--k-size)) repeat-x;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M2 2h6.5l8 8-8 8H2l8-8z'/%3E%3C/svg%3E") 0 50% / calc(var(--u) * var(--k-size)) calc(var(--u) * var(--k-size)) repeat-x;
+  animation: k-chevrons var(--k-dur, 1.4s) linear infinite;
+}
+
+@keyframes k-chevrons {
+  to {
+    -webkit-mask-position: calc(var(--u) * var(--k-size)) 50%;
+    mask-position: calc(var(--u) * var(--k-size)) 50%;
+  }
+}
+
+/* 9 · bevel — the lit top edge, the shaded underside and one lit plane */
+.k-bevel {
+  background:
+    linear-gradient(180deg, rgba(var(--hi), var(--k-hi, 0.09)) 0 calc(var(--u) * 1.5), transparent calc(var(--u) * 1.5)),
+    linear-gradient(0deg, rgba(var(--lo), var(--k-lo, 0.26)) 0 calc(var(--u) * 3), transparent calc(var(--u) * 3)),
+    linear-gradient(104deg, rgba(var(--hi), var(--k-plane, 0.03)) 0 34%, transparent 34.2%);
+}
+
+/* 10 · drop — the offset comic block under a shape (follows the shape, lean included) */
+.k-drop {
+  filter: drop-shadow(calc(var(--u) * var(--k-dx, 6)) calc(var(--u) * var(--k-dy, 6)) 0 var(--k-ink, var(--heat)));
+}
+
+/* 11 · speed — thin tapered darts that drift along --k-angle */
+.k-speed {
+  --k-ink: rgba(var(--grain), 0.36);
+  overflow: hidden;
+}
+
+.k-speed::before {
+  content: '';
+  position: absolute;
+  inset: -40% -30%;
+  rotate: var(--k-angle, -30deg);
+  background:
+    linear-gradient(90deg, transparent, var(--k-ink)) 12% 30% / 34% calc(var(--u) * 2),
+    linear-gradient(90deg, transparent, var(--k-ink)) 64% 41% / 20% calc(var(--u) * 1.5),
+    linear-gradient(90deg, transparent, var(--k-ink)) 30% 54% / 40% calc(var(--u) * 2.5),
+    linear-gradient(90deg, transparent, var(--k-ink)) 82% 62% / 16% calc(var(--u) * 1.5),
+    linear-gradient(90deg, transparent, var(--k-ink)) 6% 73% / 26% calc(var(--u) * 1.5);
+  background-repeat: no-repeat;
+  animation: k-speed var(--k-dur, 6s) linear infinite;
+}
+
+@keyframes k-speed {
+  0% { transform: translateX(-10%); opacity: 0; }
+  18%, 78% { opacity: 1; }
+  100% { transform: translateX(10%); opacity: 0; }
+}
+
+/* 12 · brush — a dry-brush swipe of paint */
+.k-brush {
+  border-radius: 0;
+  background: var(--k-ink, var(--heat));
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 60' preserveAspectRatio='none'%3E%3Cfilter id='b' x='-10%25' y='-40%25' width='120%25' height='180%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.014 0.32' numOctaves='3' seed='7'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='30' xChannelSelector='R' yChannelSelector='G'/%3E%3C/filter%3E%3Cpath filter='url(%23b)' d='M22 14C120 6 280 6 380 14 368 28 374 40 388 48 280 56 110 56 16 48 30 36 10 24 22 14Z'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 60' preserveAspectRatio='none'%3E%3Cfilter id='b' x='-10%25' y='-40%25' width='120%25' height='180%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.014 0.32' numOctaves='3' seed='7'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='30' xChannelSelector='R' yChannelSelector='G'/%3E%3C/filter%3E%3Cpath filter='url(%23b)' d='M22 14C120 6 280 6 380 14 368 28 374 40 388 48 280 56 110 56 16 48 30 36 10 24 22 14Z'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+}
+
+/* 13 · rays — a slow burst behind an emblem */
+.k-rays {
+  border-radius: 50%;
+  background: repeating-conic-gradient(from 0deg, var(--k-ink, rgba(var(--grain), 0.14)) 0 5deg, transparent 5deg 15deg);
+  -webkit-mask-image: radial-gradient(circle, #000 0 20%, transparent 68%);
+  mask-image: radial-gradient(circle, #000 0 20%, transparent 68%);
+  animation: k-spin var(--k-dur, 40s) linear infinite;
+}
+
+@keyframes k-spin {
+  to { rotate: 1turn; }
+}
+
+/* 14 · shine — a strip of light that crosses a surface now and then */
+.k-shine { overflow: hidden; }
+
+.k-shine::after {
+  content: '';
+  position: absolute;
+  top: -10%;
+  bottom: -10%;
+  left: 0;
+  width: 30%;
+  background: linear-gradient(100deg, transparent, rgba(var(--hi), var(--k-a, 0.7)) 50%, transparent);
+  transform: translateX(-120%);
+  animation: k-shine var(--k-dur, 4.6s) ease-in-out var(--k-delay, 2.4s) infinite;
+}
+
+@keyframes k-shine {
+  0%, 62% { transform: translateX(-120%); }
+  82%, 100% { transform: translateX(440%); }
+}

@@ -1,0 +1,343 @@
+/* HOME right column: the brand lockup, the season line and the standing plates (rank, streak, rival). */
+
+/* ── brand lockup ──────────────────────────────────────────────── */
+.lockup {
+  position: absolute;
+  z-index: 10;
+  right: calc(var(--u) * 60);
+  top: calc(var(--nav-h) + var(--u) * 30);
+  display: grid;
+  justify-items: end;
+}
+
+/* the tag: burnt orange, hatched at its end, sitting on a dry-brush swipe of deeper paint */
+.lockup-tag {
+  position: relative;
+  isolation: isolate;
+  margin-right: calc(var(--u) * 6);
+  padding: calc(var(--u) * 4) calc(var(--u) * 14);
+  border-radius: calc(var(--u) * 6);
+  background:
+    linear-gradient(180deg, rgba(var(--hi), 0.3) 0 calc(var(--u) * 1.2), transparent calc(var(--u) * 1.2)),
+    linear-gradient(0deg, rgba(var(--lo), 0.2) 0 calc(var(--u) * 3), transparent calc(var(--u) * 3)),
+    repeating-linear-gradient(102deg, rgba(var(--lo), 0.14) 0 calc(var(--u) * 1.5), transparent 0 calc(var(--u) * 6)) 100% 0 / 18% 100% no-repeat,
+    linear-gradient(112deg, rgba(var(--hi), 0.12) 0 22%, transparent 22.2%),
+    var(--heat);
+  color: var(--on-heat);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 700;
+  font-size: calc(var(--u) * 21);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  transform: skewX(var(--lean));
+}
+
+.lockup-tag::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  left: calc(var(--u) * -30);
+  right: calc(var(--u) * -22);
+  top: 34%;
+  bottom: -46%;
+  background: var(--heat-deep);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 60' preserveAspectRatio='none'%3E%3Cfilter id='b' x='-10%25' y='-40%25' width='120%25' height='180%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.014 0.32' numOctaves='3' seed='7'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='30' xChannelSelector='R' yChannelSelector='G'/%3E%3C/filter%3E%3Cpath filter='url(%23b)' d='M22 14C120 6 280 6 380 14 368 28 374 40 388 48 280 56 110 56 16 48 30 36 10 24 22 14Z'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 60' preserveAspectRatio='none'%3E%3Cfilter id='b' x='-10%25' y='-40%25' width='120%25' height='180%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.014 0.32' numOctaves='3' seed='7'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='30' xChannelSelector='R' yChannelSelector='G'/%3E%3C/filter%3E%3Cpath filter='url(%23b)' d='M22 14C120 6 280 6 380 14 368 28 374 40 388 48 280 56 110 56 16 48 30 36 10 24 22 14Z'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+  opacity: 0.9;
+}
+
+/* the word: printed with a burnt-orange halftone that rises into its foot, on a hard offset */
+.lockup-word {
+  margin-top: calc(var(--u) * -4);
+  font-size: calc(var(--u) * 156);
+  font-weight: 900;
+  letter-spacing: -0.012em;
+  color: transparent;
+  background:
+    linear-gradient(180deg, var(--text) 0 64%, transparent 100%),
+    radial-gradient(circle, var(--heat) 0 calc(var(--u) * 1.6), transparent calc(var(--u) * 2.2)) 0 0 / calc(var(--u) * 7) calc(var(--u) * 7),
+    var(--text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(calc(var(--u) * 5) calc(var(--u) * 6) 0 var(--type-drop));
+}
+
+/* the season line: heat rules part it, and the weeks of the season are ticked off beneath */
+.season-line {
+  position: absolute;
+  z-index: 10;
+  right: calc(var(--u) * 66);
+  top: calc(var(--nav-h) + var(--u) * 208);
+  display: flex;
+  gap: calc(var(--u) * 10);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: calc(var(--u) * 23);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.season-line::after {
+  content: '';
+  position: absolute;
+  left: calc(var(--u) * 4);
+  right: calc(var(--u) * -2);
+  bottom: calc(var(--u) * -11);
+  height: calc(var(--u) * 4);
+  background: linear-gradient(90deg, var(--heat) 0 calc(var(--wk) / var(--wks) * 100%), rgba(var(--grain), 0.2) 0);
+  -webkit-mask-image: repeating-linear-gradient(90deg, #000 0 calc(100% / var(--wks) - var(--u) * 3), transparent 0 calc(100% / var(--wks)));
+  mask-image: repeating-linear-gradient(90deg, #000 0 calc(100% / var(--wks) - var(--u) * 3), transparent 0 calc(100% / var(--wks)));
+  transform: skewX(var(--lean));
+}
+
+.season-line b {
+  position: relative;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.season-line b::before,
+.season-line b::after {
+  content: '';
+  position: absolute;
+  top: 16%;
+  bottom: 22%;
+  width: calc(var(--u) * 2.5);
+  border-radius: calc(var(--u) * 1);
+  background: var(--heat);
+  transform: skewX(var(--lean));
+}
+
+.season-line b::before { left: calc(var(--u) * -6.5); }
+.season-line b::after { right: calc(var(--u) * -6.5); }
+
+/* ── standing rail ─────────────────────────────────────────────── */
+.rail {
+  position: absolute;
+  z-index: 10;
+  right: calc(var(--u) * 60);
+  top: calc(var(--nav-h) + var(--u) * 268);
+  display: grid;
+  justify-items: end;
+  gap: calc(var(--u) * 12);
+}
+
+/* each plate steps left as it goes down, following the house lean */
+.rail > :nth-child(1) { margin-right: calc(var(--u) * 8); }
+.rail > :nth-child(2) { margin-right: calc(var(--u) * 30); }
+.rail > :nth-child(3) { margin-right: calc(var(--u) * 48); }
+
+.plate {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 16);
+  min-width: calc(var(--u) * 336);
+  padding: calc(var(--u) * 13) calc(var(--u) * 28) calc(var(--u) * 13) calc(var(--u) * 26);
+  text-align: left;
+  transition: transform 0.35s var(--ease-out);
+}
+
+.plate::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: var(--r-m);
+  background: linear-gradient(105deg, var(--plate-1), var(--plate-2));
+  transform: skewX(var(--lean));
+  box-shadow: var(--shadow-soft);
+}
+
+/* the drawn inside of a plate, leaning with it */
+.plate-skin {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: var(--r-m);
+  transform: skewX(var(--lean));
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.plate-skin > .k-facets { --k-o: 0.05; }
+
+.plate-skin > .k-hatch {
+  --k-ink: rgba(var(--grain), 0.07);
+  --k-fade: 270deg;
+  --k-reach: 38%;
+}
+
+.plate-skin > .k-ghost {
+  --k-size: 112;
+  --k-x: calc(var(--u) * 18);
+  --k-y: -0.26em;
+}
+
+.plate-skin > .k-ghost::before { transform: skewX(var(--lean-back)); }
+
+.plate-skin > .k-ticks {
+  --k-in: calc(var(--u) * 6) calc(var(--u) * 12);
+  --k-len: calc(var(--u) * 9);
+  --k-ink: rgba(var(--grain), 0.22);
+}
+
+button.plate:hover,
+button.plate:focus-visible { transform: translate3d(calc(var(--u) * -8), 0, 0); }
+
+.plate-copy {
+  flex: 1;
+  display: grid;
+  gap: calc(var(--u) * 4);
+}
+
+.plate-head {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 9);
+  font-size: calc(var(--u) * 31);
+  color: var(--text);
+}
+
+.plate-note {
+  font-size: calc(var(--u) * 15.5);
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+/* the tier emblem stands in a slow burst of gold with a ticked ring round it */
+.rank-mark {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: calc(var(--u) * 74);
+  height: calc(var(--u) * 74);
+}
+
+.rank-mark > .k-rays {
+  inset: calc(var(--u) * -24);
+  --k-ink: color-mix(in srgb, var(--go) 22%, transparent);
+}
+
+.rank-ring {
+  position: absolute;
+  inset: calc(var(--u) * -3);
+  border-radius: 50%;
+  background: repeating-conic-gradient(rgba(var(--grain), 0.26) 0 2.4deg, transparent 2.4deg 12deg);
+  -webkit-mask-image: radial-gradient(circle, transparent 0 calc(50% - var(--u) * 3.5), #000 calc(50% - var(--u) * 3.5) 50%, transparent 50%);
+  mask-image: radial-gradient(circle, transparent 0 calc(50% - var(--u) * 3.5), #000 calc(50% - var(--u) * 3.5) 50%, transparent 50%);
+  animation: k-spin 30s linear infinite reverse;
+}
+
+.rank-emblem {
+  position: relative;
+  width: calc(var(--u) * 74);
+  height: calc(var(--u) * 74);
+  filter: drop-shadow(0 0 calc(var(--u) * 14) color-mix(in srgb, var(--go) 28%, transparent));
+}
+
+.tier-s0 { stop-color: color-mix(in srgb, var(--go) 38%, rgb(var(--hi))); }
+.tier-s1 { stop-color: var(--go); }
+.tier-s2 { stop-color: color-mix(in srgb, var(--go) 70%, rgb(var(--lo))); }
+.tier-well { fill: rgb(var(--lo)); opacity: 0.82; }
+.tier-facet { fill: rgb(var(--hi)); opacity: 0.32; }
+
+.rank-tier {
+  font-size: calc(var(--u) * 24);
+  letter-spacing: 0.06em;
+  color: var(--hot);
+}
+
+.rank-sr {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: calc(var(--u) * 22);
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+}
+
+.rank-sr b {
+  margin-right: calc(var(--u) * 4);
+  font-weight: 900;
+  font-size: calc(var(--u) * 46);
+  letter-spacing: 0;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.rank .meter { margin-top: calc(var(--u) * 3); }
+
+/* the flame stands in its own heat */
+.streak-flame {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: calc(var(--u) * 52);
+  height: calc(var(--u) * 52);
+  color: var(--heat-hot);
+  filter: drop-shadow(0 0 calc(var(--u) * 12) color-mix(in srgb, var(--heat-hot) 60%, transparent));
+  animation: flame 1.9s ease-in-out infinite;
+  transform-origin: 50% 90%;
+}
+
+.streak-flame::before {
+  content: '';
+  position: absolute;
+  inset: calc(var(--u) * -8);
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--heat) 32%, transparent) 0%, transparent 68%);
+}
+
+.streak-flame svg {
+  position: relative;
+  width: calc(var(--u) * 44);
+  height: calc(var(--u) * 44);
+}
+
+@keyframes flame {
+  0%, 100% { transform: scale(1) rotate(-2deg); }
+  35% { transform: scale(1.08, 1.13) rotate(2deg); }
+  65% { transform: scale(0.97, 1.03) rotate(-1deg); }
+}
+
+.streak-x {
+  margin-left: calc(var(--u) * 4);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 800;
+  font-size: calc(var(--u) * 22);
+  color: var(--hot);
+}
+
+.rival-dot {
+  position: relative;
+  width: calc(var(--u) * 10);
+  height: calc(var(--u) * 10);
+  border-radius: 50%;
+  background: var(--good);
+  box-shadow: 0 0 calc(var(--u) * 10) var(--good);
+}
+
+.rival-dot::after {
+  content: '';
+  position: absolute;
+  inset: calc(var(--u) * -6);
+  border-radius: 50%;
+  background: radial-gradient(circle, transparent 0 52%, color-mix(in srgb, var(--good) 70%, transparent) 56% 66%, transparent 70%);
+  animation: online 2.4s ease-out infinite;
+}
+
+@media (max-aspect-ratio: 1/1), (max-width: 820px) {
+  .lockup { top: calc(var(--nav-h) + var(--u) * 20); right: calc(var(--u) * 28); }
+  .lockup-word { font-size: calc(var(--u) * 120); }
+  .season-line { top: calc(var(--nav-h) + var(--u) * 160); right: calc(var(--u) * 32); }
+  .rail { display: none; }
+}

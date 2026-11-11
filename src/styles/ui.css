@@ -1,6 +1,6 @@
 /*
   Shared interface pieces: arrivals, the progress meter and the leaning button.
-  Sizes are in --u (one pixel of the 1920×1080 reference frame).
+  Sizes are in --u (one pixel of the 1920×1080 reference frame); colours are semantic tokens only.
 */
 /* arrivals: one orchestrated sequence on load, staggered by --i */
 .enter-l,
@@ -28,24 +28,56 @@
   from { opacity: 0; transform: translate3d(0, calc(var(--u) * 46), 0); }
 }
 
-/* progress meter: green, with a slow travelling sheen */
+/*
+  Progress meter: a recessed track with a tick every tenth; the green fill has a lit top edge,
+  a shaded underside, barber stripes at the house lean that always travel, and a passing sheen.
+*/
 .meter {
+  position: relative;
   display: block;
   height: calc(var(--u) * 10);
   border-radius: 99px;
-  background: var(--ink-5);
+  background:
+    repeating-linear-gradient(90deg, transparent 0 calc(10% - var(--u) * 1.5), rgba(var(--grain), 0.16) 0 10%),
+    linear-gradient(180deg, rgba(var(--shade), 0.34) 0 calc(var(--u) * 2), transparent calc(var(--u) * 2)),
+    var(--track);
   overflow: hidden;
 }
 
 .meter i {
+  position: relative;
   display: block;
   width: var(--fill, 0%);
   height: 100%;
   border-radius: inherit;
+  overflow: hidden;
   background:
-    linear-gradient(100deg, transparent 0 40%, rgba(255, 255, 255, 0.55) 50%, transparent 60% 100%) 0 0 / 220% 100%,
-    linear-gradient(90deg, var(--green-deep), var(--green));
-  animation: meter-grow 1.1s var(--ease-out) 0.9s backwards, meter-sheen 3.4s linear 2s infinite;
+    linear-gradient(180deg, rgba(var(--hi), 0.42) 0 calc(var(--u) * 1.5), transparent calc(var(--u) * 1.5) 55%, rgba(var(--lo), 0.16) 55%),
+    linear-gradient(90deg, var(--good-deep), var(--good));
+  animation: meter-grow 1.1s var(--ease-out) 0.9s backwards;
+}
+
+.meter i::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--u) * -25);
+  right: 0;
+  background: repeating-linear-gradient(102deg, rgba(var(--hi), 0.2) 0 calc(var(--u) * 3), transparent 0 calc(var(--u) * 8));
+  animation: meter-stripes 0.9s linear infinite;
+}
+
+.meter i::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 45%;
+  background: linear-gradient(100deg, transparent, rgba(var(--hi), 0.55) 50%, transparent);
+  transform: translateX(-120%);
+  animation: meter-sheen 3.4s linear 2s infinite;
 }
 
 .meter.is-slim { height: calc(var(--u) * 7); }
@@ -54,13 +86,31 @@
   from { width: 0; }
 }
 
-@keyframes meter-sheen {
-  from { background-position: 120% 0, 0 0; }
-  to { background-position: -120% 0, 0 0; }
+/* one stripe period measured along the bar: 8u / cos 12° */
+@keyframes meter-stripes {
+  to { transform: translateX(calc(var(--u) * 8.18)); }
 }
 
-/* buttons: a leaning slab, the label stays upright-italic on top */
+@keyframes meter-sheen {
+  to { transform: translateX(340%); }
+}
+
+/*
+  Buttons: a leaning slab, the label stays upright-italic on top. The slab is drawn like the
+  reference buttons: a lit top edge, a darker thickness underneath, a folded corner at the lower
+  right, a lit facet at the left end and a large plane across the right half. An optional
+  .btn-fx child adds print (halftone, hatch, chevrons) and the passing shine.
+*/
 .btn {
+  --btn-bg: var(--counter);
+  --btn-on: var(--on-counter);
+  --btn-drop: var(--heat);
+  --btn-edge: rgba(var(--hi), 0.6);
+  --btn-base: rgba(var(--lo), 0.15);
+  --btn-fold: rgba(var(--lo), 0.13);
+  --btn-lit: rgba(var(--hi), 0);
+  --btn-plane: rgba(var(--lo), 0.055);
+  --btn-ink: rgba(var(--lo), 0.13);
   position: relative;
   isolation: isolate;
   display: inline-grid;
@@ -73,8 +123,18 @@
   font-size: calc(var(--u) * 36);
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  color: var(--black);
+  color: var(--btn-on);
   transition: transform 0.26s var(--ease-snap), filter 0.2s ease;
+}
+
+/* in the white theme the counter slab is black: its planes are drawn in light, not shade */
+:where(:root[data-theme='light']) .btn {
+  --btn-edge: rgba(var(--hi), 0.24);
+  --btn-base: rgba(var(--lo), 0.4);
+  --btn-fold: rgba(var(--hi), 0.12);
+  --btn-lit: rgba(var(--hi), 0.08);
+  --btn-plane: rgba(var(--hi), 0.06);
+  --btn-ink: rgba(var(--hi), 0.16);
 }
 
 .btn::before,
@@ -89,16 +149,51 @@
 /* the comic drop: an offset block that slides out from under the slab on hover */
 .btn::after {
   z-index: -2;
-  background: var(--black);
+  background: var(--btn-drop);
   opacity: 0;
   transition: transform 0.26s var(--ease-snap), opacity 0.16s ease;
 }
 
 .btn::before {
   z-index: -1;
-  background: var(--btn-bg, var(--white));
+  background:
+    linear-gradient(180deg, var(--btn-edge) 0 calc(var(--u) * 1.5), transparent calc(var(--u) * 1.5)),
+    linear-gradient(0deg, var(--btn-base) 0 calc(var(--u) * 5), transparent calc(var(--u) * 5)),
+    linear-gradient(135deg, transparent 0 50%, var(--btn-fold) 50%) 100% 100% / calc(var(--u) * 34) calc(var(--u) * 34) no-repeat,
+    linear-gradient(112deg, var(--btn-lit) 0 15%, transparent 15.2%),
+    linear-gradient(62deg, transparent 0 56%, var(--btn-plane) 56.2%),
+    var(--btn-bg);
   box-shadow: var(--shadow-soft);
-  transition: background-color 0.18s ease, box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease;
+}
+
+/* optional print layer inside the slab */
+.btn-fx {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: var(--r-m);
+  transform: skewX(var(--lean));
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.btn-fx > .k { --k-ink: var(--btn-ink); }
+
+.btn-fx > .k-hatch {
+  --k-fade: 90deg;
+  --k-reach: 34%;
+}
+
+.btn-fx > .k-halftone {
+  --k-fade: 270deg;
+  --k-reach: 42%;
+}
+
+.btn-fx > .k-chevrons {
+  left: auto;
+  width: 26%;
+  --k-size: 28;
 }
 
 .btn-label {
@@ -136,8 +231,11 @@
   transform: skewX(var(--lean)) translate3d(calc(var(--u) * 3), calc(var(--u) * 3), 0);
 }
 
-.btn.is-white { --btn-bg: var(--white); }
-.btn.is-white::after { background: var(--orange); }
+.btn.is-white {
+  --btn-bg: var(--counter);
+  --btn-on: var(--on-counter);
+  --btn-drop: var(--heat);
+}
 
 .btn.is-small {
   height: calc(var(--u) * 46);
@@ -146,11 +244,24 @@
 }
 
 .btn.is-small::before,
-.btn.is-small::after { border-radius: var(--r-s); }
+.btn.is-small::after,
+.btn.is-small .btn-fx { border-radius: var(--r-s); }
+
+.btn.is-small::before {
+  background-size: auto, auto, calc(var(--u) * 18) calc(var(--u) * 18), auto, auto, auto;
+}
 
 /* the one yellow thing on the screen */
 .btn.is-go {
-  --btn-bg: var(--yellow);
+  --btn-bg: var(--go);
+  --btn-on: var(--on-go);
+  --btn-drop: var(--counter);
+  --btn-edge: rgba(var(--hi), 0.75);
+  --btn-base: rgba(var(--lo), 0.14);
+  --btn-fold: rgba(var(--lo), 0.12);
+  --btn-lit: rgba(var(--hi), 0.42);
+  --btn-plane: rgba(var(--lo), 0.055);
+  --btn-ink: rgba(var(--lo), 0.11);
   height: calc(var(--u) * 104);
   padding: 0 calc(var(--u) * 58) 0 calc(var(--u) * 64);
   font-weight: 900;
@@ -159,29 +270,18 @@
 }
 
 .btn.is-go::before {
-  box-shadow: 0 calc(var(--u) * 10) calc(var(--u) * 46) rgba(255, 210, 31, 0.3);
-  background:
-    linear-gradient(100deg, transparent 0 42%, rgba(255, 255, 255, 0.85) 50%, transparent 58% 100%) 140% 0 / 240% 100% no-repeat,
-    var(--yellow);
-  animation: go-shine 4.6s ease-in-out 2.4s infinite;
+  box-shadow: 0 calc(var(--u) * 10) calc(var(--u) * 46) color-mix(in srgb, var(--go) 30%, transparent);
 }
-
-.btn.is-go::after { background: var(--white); }
 
 .btn.is-go:hover::before,
 .btn.is-go:focus-visible::before {
-  box-shadow: 0 calc(var(--u) * 14) calc(var(--u) * 70) rgba(255, 210, 31, 0.55);
+  box-shadow: 0 calc(var(--u) * 14) calc(var(--u) * 70) var(--go-glow);
 }
 
 .btn.is-go .btn-label svg {
   width: 0.62em;
   height: 0.62em;
   animation: go-nudge 1.5s var(--ease-in-out) infinite;
-}
-
-@keyframes go-shine {
-  0%, 62% { background-position: 140% 0, 0 0; }
-  82%, 100% { background-position: -60% 0, 0 0; }
 }
 
 @keyframes go-nudge {

@@ -86,7 +86,15 @@ function Compare({ avatar, order }: { avatar: Avatar; order: number }) {
 export function CastReview({ current, onUse }: Props) {
   return (
     <div className="cast">
+      <div className="cast-skin" aria-hidden="true">
+        <i className="k k-facets" />
+        <i className="k k-halftone" />
+        <i className="k k-grain" />
+      </div>
       <header className="cast-head">
+        <span className="k-serial" aria-hidden="true">
+          Review board · {String(CAST.length).padStart(2, '0')} / {String(SOURCE_COUNT).padStart(2, '0')}
+        </span>
         <h1 className="cast-title display">Avatars</h1>
         <p className="cast-lead">
           Adaptation review. {CAST.length} of {SOURCE_COUNT} source characters are done. Drag a handle to compare,
@@ -99,6 +107,12 @@ export function CastReview({ current, onUse }: Props) {
           const active = avatar.key === current;
           return (
             <article key={avatar.key} className="cast-card" style={{ '--o': i } as CSSProperties}>
+              <span className="card-skin" aria-hidden="true">
+                <i className="k k-facets is-b" />
+                <i className="k k-hatch is-fade" />
+                <i className="k k-ghost" data-k={String(i + 1).padStart(2, '0')} />
+                <i className="k k-bevel" />
+              </span>
               <Compare avatar={avatar} order={i} />
               <div className="cast-info">
                 <h2 className="cast-name display">{avatar.name}</h2>
@@ -113,6 +127,9 @@ export function CastReview({ current, onUse }: Props) {
                   className={`btn is-small ${active ? 'is-on' : 'is-white'}`}
                   onClick={() => onUse(avatar.key)}
                 >
+                  <span className="btn-fx" aria-hidden="true">
+                    <i className="k k-hatch is-fade" />
+                  </span>
                   <span className="btn-label">
                     <Icon name={active ? 'go' : 'right'} />
                     {active ? 'On the home screen' : 'Use on home'}

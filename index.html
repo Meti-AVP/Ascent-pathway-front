@@ -6,7 +6,25 @@
     <meta name="theme-color" content="#000000" />
     <title>ASCENT — Pathway Builder</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preload" href="/models/clinician.glb" as="fetch" crossorigin="anonymous" />
+    <!-- HOME's 3D model starts loading with the page — only when the address opens HOME, and it is
+         the stored avatar's model (keys and files as in src/data/cast.ts; the clinician by default) -->
+    <script>
+      (function () {
+        var id = location.hash.replace(/^#\/?/, '');
+        if (id && id !== 'home') return;
+        var models = { clinician: '/models/clinician.glb', strategist: '/models/strategist.glb', analyst: '/models/analyst.glb' };
+        var key = null;
+        try {
+          key = localStorage.getItem('ascent.avatar');
+        } catch (e) {}
+        var link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'fetch';
+        link.crossOrigin = 'anonymous';
+        link.href = Object.prototype.hasOwnProperty.call(models, key) ? models[key] : models.clinician;
+        document.head.appendChild(link);
+      })();
+    </script>
     <!-- the theme is applied before any stylesheet arrives, so the first frame is already right -->
     <script>
       try {

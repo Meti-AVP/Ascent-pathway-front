@@ -88,6 +88,17 @@
   100% { transform: translate3d(126vw, 0, 0) skewX(var(--lean)); }
 }
 
+/* the theme flips behind the wipe (App toggleTheme), but the nav and the bar stay in view above it:
+   while their new colours are worked out, no transition may carry an old one across */
+:root[data-swap] :is(.nav, .bar),
+:root[data-swap] :is(.nav, .bar) *,
+:root[data-swap] :is(.nav, .bar)::before,
+:root[data-swap] :is(.nav, .bar)::after,
+:root[data-swap] :is(.nav, .bar) *::before,
+:root[data-swap] :is(.nav, .bar) *::after {
+  transition: none !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .wipe { display: none; }
 }

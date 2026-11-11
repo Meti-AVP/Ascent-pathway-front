@@ -1,0 +1,187 @@
+/*
+  PATHWAYS background: graphite, a faint silver blueprint of the citadel and its stairway, the
+  leaning slabs, halftone, grain and the streak cluster in the lower right. Static except the
+  streaks, which move on their own small composited layers (transform and opacity only) and sit
+  above every static layer, so nothing is promoted for overlapping them.
+*/
+
+.pb {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(calc(var(--u) * 1300) calc(var(--u) * 900) at 70% 42%, var(--card-2) 0%, var(--page) 78%);
+}
+
+:where(:root[data-theme='light']) .pb {
+  background:
+    radial-gradient(calc(var(--u) * 1300) calc(var(--u) * 900) at 70% 42%, var(--card-1) 0%, var(--page) 78%);
+}
+
+.pb-print {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  animation: pw-fade 1.4s ease 0.2s backwards;
+}
+
+.pb-print path,
+.pb-print circle { fill: none; vector-effect: non-scaling-stroke; }
+.pb-grid path { stroke: rgba(var(--grain), 0.032); stroke-width: 1; }
+.pb-cross path { stroke: rgba(var(--grain), 0.15); stroke-width: 1.2; }
+.pb-line :is(path, circle) { stroke: rgba(var(--grain), 0.085); stroke-width: 1.4; }
+.pb-faint :is(path, circle) { stroke: rgba(var(--grain), 0.055); stroke-width: 1.1; }
+.pb-heat :is(path, circle) { stroke: var(--heat); stroke-width: 1.8; opacity: 0.55; }
+
+:where(:root[data-theme='light']) .pb-line :is(path, circle) { stroke: rgba(var(--grain), 0.11); }
+:where(:root[data-theme='light']) .pb-faint :is(path, circle) { stroke: rgba(var(--grain), 0.075); }
+
+.pb-label {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  fill: rgba(var(--grain), 0.2);
+}
+
+/* behind the detail and the rewards screens the drawing keeps its lines but not its figures:
+   they would read as stray UI beside the pips and the slabs */
+.pw:is([data-view='detail'], [data-view='rewards'], .is-detail, .is-rewards) .pb-label { visibility: hidden; }
+
+/* ── slabs ─────────────────────────────────────────────────────── */
+.pb-slabs {
+  position: absolute;
+  inset: 0;
+}
+
+.pb-slab {
+  position: absolute;
+  top: -14%;
+  height: 128%;
+  overflow: hidden;
+  border-radius: var(--r-l);
+  transform: skewX(var(--lean));
+  animation: pb-slab-in 1.2s var(--ease-out) backwards;
+}
+
+.pb-slab.is-a {
+  left: 44%;
+  width: 22%;
+  background:
+    linear-gradient(90deg, rgba(var(--hi), 0.05) 0 calc(var(--u) * 3), transparent calc(var(--u) * 3)),
+    linear-gradient(180deg, color-mix(in srgb, var(--card-1) 70%, transparent) 0%, transparent 85%);
+  animation-delay: 0.05s;
+}
+
+.pb-slab.is-a > .k-facets { --k-o: 0.04; }
+.pb-slab.is-a > .k-hatch { --k-ink: rgba(var(--grain), 0.035); --k-fade: 0deg; --k-reach: 60%; }
+
+.pb-slab.is-b {
+  left: 80%;
+  width: 7%;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--slab) 60%, transparent) 0%, transparent 75%);
+  animation-delay: 0.14s;
+}
+
+.pb-slab.is-b > .k-halftone { --k-ink: rgba(var(--grain), 0.12); --k-step: 7; --k-dot: 1.3; --k-fade: 180deg; --k-reach: 70%; }
+
+.pb-slab.is-c {
+  left: 37.6%;
+  width: 0.9%;
+  background: var(--prime);
+  opacity: 0.16;
+  animation-delay: 0.24s;
+}
+
+@keyframes pb-slab-in {
+  from { transform: skewX(var(--lean)) translate3d(0, -110%, 0); }
+}
+
+/* halftone gathering in the lower right, under the streaks */
+.pb-dots {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(var(--grain), 0.45) 0 calc(var(--u) * 1.9), transparent calc(var(--u) * 2.5)) 0 0 / calc(var(--u) * 17) calc(var(--u) * 17);
+  -webkit-mask-image: radial-gradient(calc(var(--u) * 760) calc(var(--u) * 360) at 92% 100%, rgba(0, 0, 0, 0.55) 0%, transparent 100%);
+  mask-image: radial-gradient(calc(var(--u) * 760) calc(var(--u) * 360) at 92% 100%, rgba(0, 0, 0, 0.55) 0%, transparent 100%);
+  opacity: 0.5;
+  animation: pw-fade 1.4s ease 0.6s backwards;
+}
+
+/* ── the streak cluster in the lower right (f_56: x 1460–1920, y 860–1010) ──
+   Each streak is a soft band, brightest at its head on the right edge: the softness is drawn
+   into the gradient and a static 1–3 u blur on the painted child, so the moving element (the
+   <i>) only ever changes transform and opacity. */
+.pb-streaks {
+  position: absolute;
+  right: 0;
+  top: calc(var(--u) * 840);
+  width: calc(var(--u) * 640);
+  height: calc(var(--u) * 190);
+  overflow: hidden;
+}
+
+/* the light the cluster gives off: a static glow at the edge it runs out of (its own small
+   element: painted on the full-screen container it would make that a full-screen layer) */
+.pb-glow {
+  position: absolute;
+  right: 0;
+  top: calc(var(--u) * 820);
+  width: calc(var(--u) * 560);
+  height: calc(var(--u) * 230);
+  background: radial-gradient(farthest-side at 100% 50%, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.035) 55%, transparent);
+}
+
+:where(:root[data-theme='light']) .pb-glow {
+  background: radial-gradient(farthest-side at 100% 50%, color-mix(in srgb, var(--heat) 10%, transparent), transparent);
+}
+
+.pb-streak {
+  --ink: 255, 255, 255;
+  position: absolute;
+  right: calc(var(--u) * -30);
+  top: calc(var(--u) * (var(--y) - 840 - var(--h) / 2));
+  width: calc(var(--u) * var(--w));
+  height: calc(var(--u) * var(--h));
+  opacity: 0;
+  animation: pb-streak ease-in-out infinite;
+}
+
+.pb-streak::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 99px;
+  --k: calc(var(--a) * var(--a-k, 1));
+  background: linear-gradient(90deg, transparent, rgba(var(--ink), calc(var(--k) * 0.35)) 35%, rgba(var(--ink), calc(var(--k) * 0.85)) 75%, rgba(var(--ink), var(--k)) 96%, rgba(var(--ink), calc(var(--k) * 0.8)));
+  filter: blur(calc(var(--u) * (0.8 + var(--h) * 0.2)));
+}
+
+.pb-streak.is-s { --ink: 194, 198, 204; }
+.pb-streak.is-h { --ink: 238, 106, 44; }
+
+/* light mode: on the pale page the cluster is drawn in silver-graphite, the heat ones stay heat */
+:where(:root[data-theme='light']) .pb-streak.is-w { --ink: 109, 114, 123; }
+:where(:root[data-theme='light']) .pb-streak.is-s { --ink: 154, 159, 168; }
+:where(:root[data-theme='light']) .pb-streak { --a-k: 0.7; }
+
+/* each streak runs in from the edge and dims; the heads keep to the right edge */
+@keyframes pb-streak {
+  0% { opacity: 0; transform: translateX(calc(var(--u) * 70)); }
+  12% { opacity: 1; }
+  78% { opacity: 0.85; }
+  100% { opacity: 0; transform: translateX(calc(var(--u) * -40)); }
+}
+
+.pb-vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(0deg, rgba(var(--veil), 0.6) 0%, rgba(var(--veil), 0) 18%),
+    linear-gradient(180deg, rgba(var(--veil), 0.5) 0%, rgba(var(--veil), 0) 16%);
+}
+
+.pb-grain { --k-o: 0.06; }

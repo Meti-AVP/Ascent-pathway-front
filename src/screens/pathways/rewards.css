@@ -1,0 +1,1148 @@
+/*
+  COMPLETE FOR REWARDS (REWARDS_SCREEN.md). One unit (--u) is one pixel of the 1920 × 1080 frame;
+  colours are semantic tokens. Motion: stepped keyframes in frames of 33 ms (step-end), transform
+  and opacity only, each animated property on its own element; clipped shapes never move.
+*/
+
+/* the upright display cuts (the title, PROGRESS, the count, GO, the diamonds), under a name of
+   this screen's own so no other screen's type changes */
+@font-face {
+  font-family: 'Rw Display';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../../../node_modules/@fontsource/barlow-condensed/files/barlow-condensed-latin-700-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Rw Display';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('../../../node_modules/@fontsource/barlow-condensed/files/barlow-condensed-latin-800-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Rw Display';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url('../../../node_modules/@fontsource/barlow-condensed/files/barlow-condensed-latin-900-normal.woff2') format('woff2');
+}
+
+/* the map's hero never shows behind this screen */
+.pw[data-view='rewards'] .pw-hero { visibility: hidden; }
+
+.rw {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  overflow: hidden;
+}
+
+/* the 1920 × 1080 frame, centred across, from the top; the heat shapes bleed past it */
+.rw-frame {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: calc(var(--u) * 1920);
+  height: calc(var(--u) * 1080);
+  margin-left: calc(var(--u) * -960);
+}
+
+/* ── backdrop additions: the ghost name and the floor glow (§2.1) ─────────────── */
+.rw-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.rw-ghost {
+  position: absolute;
+  left: calc(var(--u) * 620);
+  top: calc(var(--u) * 74);
+  font-family: 'Rw Display', var(--font-display);
+  font-style: normal;
+  font-weight: 800;
+  font-size: calc(var(--u) * 230);
+  line-height: 1;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: transparent;
+  -webkit-text-stroke: calc(var(--u) * 1.5) rgba(var(--grain), 0.07);
+}
+
+.rw-floor {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(calc(var(--u) * 760) calc(var(--u) * 240) at 50% 100%, color-mix(in srgb, var(--heat) 22%, transparent), transparent 70%);
+}
+
+:where(:root[data-theme='light']) .rw-floor {
+  background: radial-gradient(calc(var(--u) * 760) calc(var(--u) * 240) at 50% 100%, color-mix(in srgb, var(--heat) 12%, transparent), transparent 70%);
+}
+
+/* the dip the screen rises out of (§4: the map has gone to the page colour) */
+.rw-dip,
+.rw-leave {
+  position: absolute;
+  left: -50vw;
+  right: -50vw;
+  top: 0;
+  bottom: -50vh;
+  background: var(--page);
+  pointer-events: none;
+}
+
+.rw-dip { animation: rw-dip 167ms step-end both; }
+.rw-leave { z-index: 6; animation: rw-leave 133ms step-end both; }
+
+/* ── the heat L panel and the right edge band (§2.2) ──────────────────────────── */
+.rw-l {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.rw-l-shape,
+.rw-band {
+  position: absolute;
+  top: calc(var(--u) * 76);
+  height: calc(100vh - var(--u) * 76);
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--heat-hot) 0, var(--heat) calc(var(--u) * 381), var(--heat-deep) calc(var(--u) * 1004));
+}
+
+/* (0,76) (531,76) (531,112) (184,468) (184,1080) (0,1080), bled out to the left */
+.rw-l-shape {
+  left: calc(var(--u) * -480);
+  width: calc(var(--u) * 1011);
+  clip-path: polygon(0 0, 100% 0, 100% calc(var(--u) * 36), calc(var(--u) * 664) calc(var(--u) * 392), calc(var(--u) * 664) 100%, 0 100%);
+}
+
+/* (1898,76) (1920,76) (1920,1080) (1850,1080) (1850,870) (1898,822), bled out to the right */
+.rw-band {
+  left: calc(var(--u) * 1840);
+  width: calc(var(--u) * 80 + 50vw);
+  clip-path: polygon(calc(var(--u) * 58) 0, 100% 0, 100% 100%, calc(var(--u) * 10) 100%, calc(var(--u) * 10) calc(var(--u) * 794), calc(var(--u) * 58) calc(var(--u) * 746));
+}
+
+.rw-l-shape > .k-hatch,
+.rw-band > .k-hatch { --k-ink: rgba(var(--lo), 0.12); --k-step: 7; }
+
+.rw-l-shape > .k-grain,
+.rw-band > .k-grain { --k-o: 0.05; }
+
+/* halftone in the bottom 40% of the frame */
+.rw-l-dots {
+  top: calc(var(--u) * 526);
+  --k-ink: rgba(var(--lo), 0.18);
+  --k-fade: 0deg;
+  --k-reach: 100%;
+  -webkit-mask-image: linear-gradient(0deg, #000 calc(100% - var(--u) * 402), transparent 100%);
+  mask-image: linear-gradient(0deg, #000 calc(100% - var(--u) * 402), transparent 100%);
+}
+
+:where(:root[data-theme='light']) .rw-l-shape > .k-hatch,
+:where(:root[data-theme='light']) .rw-band > .k-hatch { --k-ink: rgba(var(--lo), 0.1); }
+:where(:root[data-theme='light']) .rw-l-dots { --k-ink: rgba(var(--lo), 0.12); }
+
+/* four soft streaks crossing the edge, stepping between 0.7 and 1 every 1.6 s */
+.rw-streaks {
+  position: absolute;
+  left: 0;
+  top: calc(var(--u) * 390);
+  width: calc(var(--u) * 260);
+  height: calc(var(--u) * 64);
+  animation: rw-blink 3.2s step-end infinite;
+}
+
+.rw-streaks i {
+  position: absolute;
+  left: calc(var(--u) * 40);
+  width: calc(var(--u) * 190);
+  border-radius: 99px;
+  background: linear-gradient(90deg, transparent, rgba(var(--hi), var(--a)) 82%, rgba(var(--hi), var(--a)));
+  filter: blur(calc(var(--u) * 1.5));
+}
+
+.rw-streaks i:nth-child(1) { top: calc(var(--u) * 14); height: calc(var(--u) * 2); --a: 0.55; }
+.rw-streaks i:nth-child(2) { top: calc(var(--u) * 21.5); height: calc(var(--u) * 5); --a: 0.8; }
+.rw-streaks i:nth-child(3) { top: calc(var(--u) * 34.5); height: calc(var(--u) * 3); --a: 0.4; }
+.rw-streaks i:nth-child(4) { top: calc(var(--u) * 44); height: calc(var(--u) * 8); --a: 0.3; }
+
+/* ── the title: upright, flat, two-tone, split by the panel's edge (§2.4) ──────── */
+.rw-title {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.rw-title-copy {
+  position: absolute;
+  inset: 0;
+  padding: calc(var(--u) * 119.3) 0 0 calc(var(--u) * 236);
+  font-family: 'Rw Display', var(--font-display);
+  font-style: normal;
+  font-weight: 800;
+  font-size: calc(var(--u) * 96);
+  line-height: calc(var(--u) * 102);
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* condensed 4% to the reference's measure: "COMPLETE FOR" 464 u, "REWARDS" 310 u */
+.rw-title-copy > span {
+  display: inline-block;
+  transform: scaleX(0.96);
+  transform-origin: 0 0;
+}
+
+.rw-title-copy.is-in {
+  color: var(--label);
+  clip-path: polygon(0 0, calc(var(--u) * 531) 0, calc(var(--u) * 531) calc(var(--u) * 112), calc(var(--u) * 184) calc(var(--u) * 468), calc(var(--u) * 184) 100%, 0 100%);
+}
+
+.rw-title-copy.is-out {
+  color: var(--heat);
+  clip-path: polygon(calc(var(--u) * 531) 0, 100% 0, 100% 100%, calc(var(--u) * 184) 100%, calc(var(--u) * 184) calc(var(--u) * 468), calc(var(--u) * 531) calc(var(--u) * 112));
+}
+
+/* ── drawn lines: the edge strip over the title, construction lines, accent, leader ── */
+.rw-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.rw-construct { fill: none; stroke: rgba(var(--lo), 0.22); stroke-width: 1.5; }
+.rw-edge { fill: var(--heat-hot); }
+.rw-edge-lit { fill: none; stroke: rgba(var(--hi), 0.5); stroke-width: 2; }
+.rw-edge-shade { fill: none; stroke: rgba(var(--lo), 0.45); stroke-width: 3; }
+.rw-accent { fill: var(--white); }
+.rw-leader { fill: none; stroke: rgba(var(--grain), 0.2); stroke-width: 1.5; }
+.rw-leader.is-hot { stroke: var(--heat); }
+.rw-dash { fill: var(--heat); }
+
+/* ── the preview (§2.5) ─────────────────────────────────────────────────────── */
+.rw-stage {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* behind a badge, title or banner: a heat glow and the ghost emblem ring */
+.rw-glow,
+.rw-ring {
+  position: absolute;
+  opacity: 0;
+  transition: opacity 100ms steps(3, end);
+}
+
+.rw-glow {
+  left: calc(var(--u) * 704);
+  top: calc(var(--u) * 240);
+  width: calc(var(--u) * 600);
+  height: calc(var(--u) * 600);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--heat) 25%, transparent), transparent);
+}
+
+.rw-ring {
+  left: calc(var(--u) * 664);
+  top: calc(var(--u) * 200);
+  width: calc(var(--u) * 680);
+  height: calc(var(--u) * 680);
+  overflow: visible;
+}
+
+.rw-ring circle,
+.rw-ring path { fill: none; stroke: rgba(var(--grain), 0.06); stroke-width: 2; }
+.rw-ring .rw-ring-mark { fill: rgba(var(--grain), 0.06); stroke: none; }
+
+.rw-stage.is-object .rw-glow,
+.rw-stage.is-object .rw-ring { opacity: 1; }
+
+.rw-pv {
+  position: absolute;
+  inset: 0;
+}
+
+/* the card and the nameplate are mapped onto their quads (transform-origin at the frame's corner) */
+.rw-card,
+.rw-plate {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+}
+
+.rw-card { width: calc(var(--u) * 560); height: calc(var(--u) * 350); }
+.rw-plate { width: calc(var(--u) * 640); height: calc(var(--u) * 150); }
+
+.rw-obj { position: absolute; }
+.rw-obj.is-banner { transform: perspective(calc(var(--u) * 1400)) rotateY(-12deg); }
+
+.rw-pv.is-in :is(.rw-card, .rw-plate, .rw-obj) {
+  pointer-events: auto;
+  cursor: zoom-in;
+}
+
+.rw-pv-in,
+.rw-float,
+.rw-sway,
+.rw-pose,
+.rw-bob,
+.rw-swing {
+  position: absolute;
+  inset: 0;
+}
+
+/* idle: cards, plates and banners float 5 u and turn ±1.5°; badges bob 6 u; banners swing ±1.2° */
+.rw-float { animation: rw-float 4.2s var(--ease-in-out) 0.8s infinite; }
+.rw-sway { animation: rw-sway 6.4s var(--ease-in-out) 0.8s infinite; }
+.rw-bob { animation: rw-bob 4.2s var(--ease-in-out) 0.8s infinite; }
+.rw-swing { transform-origin: 50% 0; animation: rw-swing 4.6s var(--ease-in-out) 0.8s infinite; }
+
+.rw.is-inspecting :is(.rw-float, .rw-sway, .rw-bob, .rw-swing, .rw-streaks, .rw-go-chev i) { animation-play-state: paused; }
+.rw.is-inspecting .rw-pv.is-in { opacity: 0; }
+
+/* a change of selection (§5) */
+.rw-pv.is-in.m-card .rw-pose { animation: rw-pose 67ms step-end both; }
+.rw-pv.is-in.m-gap .rw-pv-in { animation: rw-gap 133ms step-end both; }
+.rw-pv.is-in.m-gap.is-card .rw-pv-in { animation: rw-gap-card 34ms step-end both; }
+.rw-pv.is-in.m-gap.is-card .rw-pose { animation: rw-pose 67ms step-end 33ms both; }
+.rw-pv.is-in.m-gap.is-card .ra-shine-run { animation-delay: 33ms; }
+.rw-pv.is-in.m-fade .rw-pv-in { animation: rw-fade-in 100ms step-end both; }
+.rw-pv.is-out .rw-pv-in { animation: rw-fade-out 100ms step-end both; }
+
+.rw-plate-note {
+  position: absolute;
+  width: calc(var(--u) * 600);
+  font-size: calc(var(--u) * 15);
+  line-height: 1.3;
+  text-align: center;
+  color: var(--text-dim);
+}
+
+/* ── the info column (§2.6) ─────────────────────────────────────────────────── */
+.rw-info {
+  position: absolute;
+  left: calc(var(--u) * 1400);
+  top: calc(var(--u) * 408.8);
+  width: calc(var(--u) * 450);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.rw-name {
+  max-width: calc(var(--u) * 440);
+  font-size: calc(var(--u) * 56);
+  font-weight: 900;
+  line-height: calc(var(--u) * 52);
+  color: var(--text);
+  text-wrap: balance;
+}
+
+.rw-kind {
+  margin-top: calc(var(--u) * 16.2);
+  font-size: calc(var(--u) * 14);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.22em;
+  color: var(--text-dim);
+}
+
+.rw-rarity.is-rare { color: var(--silver-2); }
+.rw-rarity.is-epic { color: var(--heat-hot); }
+
+.rw-rarity.is-legendary {
+  background: var(--silver-sheen);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+:where(:root[data-theme='light']) .rw-rarity.is-rare { color: var(--text-dim); }
+:where(:root[data-theme='light']) .rw-rarity.is-epic { color: var(--heat); }
+:where(:root[data-theme='light']) .rw-rarity.is-legendary { background-image: var(--prime); }
+
+.rw-rule {
+  display: block;
+  margin-top: calc(var(--u) * 13);
+  width: calc(var(--u) * 438);
+  height: calc(var(--u) * 1.5);
+  background: rgba(var(--grain), 0.16);
+}
+
+.rw-series {
+  margin-top: calc(var(--u) * 30.9);
+  font-size: calc(var(--u) * 16);
+  font-weight: 600;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--text-mute);
+}
+
+.rw-series b { font-weight: 700; color: var(--heat-hot); }
+:where(:root[data-theme='light']) .rw-series b { color: var(--heat); }
+
+.rw-source,
+.rw-pay {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 8);
+  font-size: calc(var(--u) * 15);
+  line-height: 1.2;
+}
+
+.rw-source { margin-top: calc(var(--u) * 15.1); color: var(--text-dim); }
+.rw-pay { margin-top: calc(var(--u) * 8); color: var(--text-mute); }
+.rw-source svg { width: calc(var(--u) * 16); height: calc(var(--u) * 16); flex: none; }
+
+.rw-syn {
+  width: calc(var(--u) * 17);
+  height: calc(var(--u) * 17);
+  flex: none;
+  color: var(--go);
+}
+
+.rw-state {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 9);
+  margin-top: calc(var(--u) * 18.3);
+  font-family: 'Rw Display', var(--font-display);
+  font-weight: 700;
+  font-size: calc(var(--u) * 17);
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.rw-state svg { width: calc(var(--u) * 17); height: calc(var(--u) * 17); flex: none; }
+.rw-state.is-claimed { color: var(--good); }
+.rw-state.is-next { color: var(--heat-hot); }
+.rw-state.is-locked { color: var(--text-dim); }
+:where(:root[data-theme='light']) .rw-state.is-next { color: var(--heat); }
+
+.rw-state-pip {
+  width: calc(var(--u) * 11);
+  height: calc(var(--u) * 11);
+  border-radius: calc(var(--u) * 2);
+  background: currentColor;
+  transform: rotate(45deg);
+}
+
+/* ── progress (§2.7) ────────────────────────────────────────────────────────── */
+.rw-progress {
+  position: absolute;
+  left: calc(var(--u) * 600);
+  top: calc(var(--u) * 737);
+  width: calc(var(--u) * 668);
+  height: calc(var(--u) * 45);
+  isolation: isolate;
+}
+
+/* a plate whose right end leans 12°: the shape is drawn on a ::before, nothing clipped moves */
+.rw-progress-skin {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  border-radius: calc(var(--u) * 4);
+  clip-path: polygon(0 0, 100% 0, calc(100% - var(--u) * 9.6) 100%, 0 100%);
+  background:
+    linear-gradient(180deg, rgba(var(--hi), 0.08) 0 calc(var(--u) * 1.5), transparent calc(var(--u) * 1.5)),
+    var(--plate-1);
+}
+
+.rw-progress-skin > .k-hatch { opacity: 0.4; }
+
+:where(:root[data-theme='light']) .rw-progress { filter: drop-shadow(0 calc(var(--u) * 6) calc(var(--u) * 18) rgba(var(--shade), 0.14)); }
+
+.rw-progress-label,
+.rw-progress-count,
+.rw-progress-paid {
+  position: absolute;
+  font-family: 'Rw Display', var(--font-display);
+  font-style: normal;
+  line-height: 1;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+.rw-progress-label {
+  left: calc(var(--u) * 32);
+  top: calc(var(--u) * 15);
+  font-weight: 700;
+  font-size: calc(var(--u) * 17);
+  letter-spacing: 0.12em;
+  color: var(--text);
+}
+
+.rw-progress-count {
+  left: calc(var(--u) * 119);
+  top: calc(var(--u) * 0.5);
+  font-weight: 900;
+  font-size: calc(var(--u) * 48.6);
+  letter-spacing: 0.01em;
+  color: var(--text);
+}
+
+.rw-progress-count b { font-weight: 900; color: var(--good); padding: 0 calc(var(--u) * 2); }
+
+.rw-progress-paid {
+  right: calc(var(--u) * 20);
+  top: calc(var(--u) * 16.5);
+  font-weight: 700;
+  font-size: calc(var(--u) * 14);
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+/* ── the track: line, diamonds, thumbnails (§2.8) ───────────────────────────── */
+.rw-track {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.rw-track-line {
+  position: absolute;
+  top: calc(var(--u) * 815.25);
+  height: calc(var(--u) * 1.5);
+  background: rgba(var(--grain), 0.14);
+}
+
+.rw-dia {
+  position: absolute;
+  top: calc(var(--u) * 816);
+  width: calc(var(--u) * 25);
+  height: calc(var(--u) * 25);
+  margin: calc(var(--u) * -12.5) 0 0 calc(var(--u) * -12.5);
+  display: grid;
+  place-items: center;
+  border-radius: calc(var(--u) * 3);
+  background: var(--track);
+  transform: rotate(45deg);
+}
+
+.rw-dia b {
+  font-family: 'Rw Display', var(--font-display);
+  font-weight: 800;
+  font-size: calc(var(--u) * 14);
+  line-height: 1;
+  color: var(--text-dim);
+  transform: rotate(-45deg);
+}
+
+.rw-dia.is-claimed { background: var(--good); }
+.rw-dia.is-claimed b { color: var(--on-good); }
+.rw-dia.is-next { background: var(--heat); }
+.rw-dia.is-next b { color: var(--on-heat); }
+
+/* the diamond over the selection lightens */
+.rw-dia.is-on::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.rw-dia.is-on b { position: relative; z-index: 1; }
+
+.rw-thumb {
+  position: absolute;
+  pointer-events: auto;
+}
+
+.rw-thumb:focus-visible { outline: none; }
+
+.rw-thumb-in,
+.rw-thumb-land,
+.rw-thumb-lift {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.rw-thumb-lift { transition: transform 0.18s var(--ease-out); }
+.rw-thumb.is-on .rw-thumb-lift { transform: translateY(calc(var(--u) * -2)); }
+.rw-thumb:not(.is-on):hover .rw-thumb-lift { transform: translateY(calc(var(--u) * -3)); }
+
+.rw-thumb-frame {
+  position: absolute;
+  inset: 0;
+  border-radius: calc(var(--u) * 4);
+  background:
+    linear-gradient(180deg, rgba(var(--hi), 0.07) 0 calc(var(--u) * 1), transparent calc(var(--u) * 1)),
+    var(--card-2);
+  box-shadow: var(--shadow-soft);
+}
+
+:where(:root[data-theme='light']) .rw-thumb-frame { background: var(--slab); }
+
+.rw-thumb-well {
+  position: absolute;
+  inset: calc(var(--u) * 4);
+  overflow: hidden;
+  border-radius: calc(var(--u) * 2.5);
+  background: radial-gradient(120% 90% at 50% 30%, var(--card-1), color-mix(in srgb, var(--card-1) 70%, var(--card-2)));
+}
+
+.rw-thumb-well > .k-halftone { opacity: 0.25; --k-fade: 0deg; --k-reach: 80%; }
+
+.rw-thumb-well::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(var(--hi), 0.06);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.rw-thumb:not(.is-on):hover .rw-thumb-well::after { opacity: 1; }
+
+.rw-thumb-art {
+  position: absolute;
+  left: 50%;
+  top: 47%;
+  translate: -50% -50%;
+}
+
+.rw-thumb-art.is-card { width: calc(var(--u) * 76); height: calc(var(--u) * 76); }
+.rw-thumb-art.is-badge { width: calc(var(--u) * 54.5); height: calc(var(--u) * 60); }
+.rw-thumb-art.is-banner { width: calc(var(--u) * 38.3); height: calc(var(--u) * 60); }
+.rw-thumb-art.is-title { width: calc(var(--u) * 76); height: calc(var(--u) * 53.2); }
+
+.rw-thumb.is-locked .rw-thumb-art { opacity: 0.55; }
+
+.rw-thumb-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(var(--u) * 4);
+}
+
+.rw-thumb-bar.is-rare { background: var(--silver-2); }
+.rw-thumb-bar.is-epic { background: var(--heat); }
+.rw-thumb-bar.is-legendary { background: var(--silver-sheen); }
+
+/* corner brackets: drawn ticks 3 u outside each corner */
+.rw-tick {
+  --tick: rgba(var(--grain), 0.38);
+  position: absolute;
+  width: calc(var(--u) * 10);
+  height: calc(var(--u) * 10);
+  background:
+    linear-gradient(var(--tick), var(--tick)) var(--tx, 0) var(--ty, 0) / 100% calc(var(--u) * 2) no-repeat,
+    linear-gradient(var(--tick), var(--tick)) var(--tx, 0) var(--ty, 0) / calc(var(--u) * 2) 100% no-repeat;
+  transition: transform 0.18s var(--ease-out);
+}
+
+:where(:root[data-theme='light']) .rw-tick { --tick: rgba(0, 0, 0, 0.28); }
+
+.rw-tick.is-tl { left: calc(var(--u) * -5); top: calc(var(--u) * -5); }
+.rw-tick.is-tr { right: calc(var(--u) * -5); top: calc(var(--u) * -5); --tx: 100%; }
+.rw-tick.is-br { right: calc(var(--u) * -5); bottom: calc(var(--u) * -5); --tx: 100%; --ty: 100%; }
+.rw-tick.is-bl { left: calc(var(--u) * -5); bottom: calc(var(--u) * -5); --ty: 100%; }
+
+.rw-thumb:not(.is-on):hover .rw-tick.is-tl { transform: translate(calc(var(--u) * -2), calc(var(--u) * -2)); }
+.rw-thumb:not(.is-on):hover .rw-tick.is-tr { transform: translate(calc(var(--u) * 2), calc(var(--u) * -2)); }
+.rw-thumb:not(.is-on):hover .rw-tick.is-br { transform: translate(calc(var(--u) * 2), calc(var(--u) * 2)); }
+.rw-thumb:not(.is-on):hover .rw-tick.is-bl { transform: translate(calc(var(--u) * -2), calc(var(--u) * 2)); }
+
+.rw-thumb-check {
+  position: absolute;
+  right: calc(var(--u) * -6);
+  top: calc(var(--u) * -6);
+  width: calc(var(--u) * 18);
+  height: calc(var(--u) * 18);
+  display: grid;
+  place-items: center;
+  border-radius: calc(var(--u) * 4);
+  background: var(--good);
+  color: var(--on-good);
+  box-shadow: 0 calc(var(--u) * 2) calc(var(--u) * 5) rgba(var(--shade), 0.4);
+  transform: rotate(-8deg);
+}
+
+.rw-thumb-check svg { width: calc(var(--u) * 12); height: calc(var(--u) * 12); }
+
+.rw-thumb-lock {
+  position: absolute;
+  right: calc(var(--u) * 8);
+  top: calc(var(--u) * 8);
+  width: calc(var(--u) * 12);
+  height: calc(var(--u) * 12);
+  color: var(--text-dim);
+}
+
+.rw-thumb-lock svg { display: block; width: 100%; height: 100%; }
+
+/* the selection: a yellow frame 2 u outside, notched at its lower left — what GO acts on */
+.rw-thumb-sel {
+  position: absolute;
+  left: calc(var(--u) * -5);
+  top: calc(var(--u) * -5);
+  overflow: visible;
+  pointer-events: none;
+}
+
+.rw-sel-a { fill: none; stroke: var(--go); stroke-width: 3; stroke-linejoin: round; }
+.rw-sel-b { display: none; fill: none; stroke: var(--go); stroke-width: 2; stroke-linejoin: round; }
+
+/* white theme: yellow alone vanishes on white — a black frame with a yellow line inside */
+:where(:root[data-theme='light']) .rw-sel-a { stroke: var(--label); }
+:where(:root[data-theme='light']) .rw-sel-b { display: block; }
+
+/* keyboard focus: a leaning yellow bar under the thumb */
+.rw-thumb-focus {
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  bottom: calc(var(--u) * -15);
+  height: calc(var(--u) * 5);
+  border-radius: calc(var(--u) * 2);
+  background: var(--go);
+  transform: skewX(var(--lean));
+  opacity: 0;
+}
+
+.rw-thumb:focus-visible .rw-thumb-focus { opacity: 1; }
+
+/* ── GO (§2.9) ──────────────────────────────────────────────────────────────── */
+.rw-go-wrap {
+  position: absolute;
+  left: calc(var(--u) * 1391);
+  top: calc(var(--u) * 856);
+  width: calc(var(--u) * 319);
+  height: calc(var(--u) * 47);
+}
+
+.rw-go {
+  position: absolute;
+  inset: 0;
+  display: block;
+  transition: transform 0.2s var(--ease-snap);
+}
+
+.rw-go:focus-visible { outline: none; }
+
+.rw-go-body,
+.rw-go-drop {
+  position: absolute;
+  inset: 0;
+}
+
+.rw-go-body svg,
+.rw-go-drop svg,
+.rw-go-flash {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.rw-go-fill { fill: var(--go); }
+.rw-go-top { fill: none; stroke: rgba(var(--hi), 0.55); stroke-width: 2; stroke-linecap: round; }
+.rw-go-drop path { fill: var(--counter); }
+
+/* hover and keyboard focus: the slab lifts off a comic drop */
+.rw-go-drop {
+  opacity: 0;
+  transition: transform 0.2s var(--ease-snap), opacity 0.14s ease;
+}
+
+.rw-go:not(.is-claimed):hover,
+.rw-go:not(.is-claimed):focus-visible { transform: translate(calc(var(--u) * -3), calc(var(--u) * -3)); }
+
+.rw-go:not(.is-claimed):hover .rw-go-drop,
+.rw-go:not(.is-claimed):focus-visible .rw-go-drop {
+  opacity: 1;
+  transform: translate(calc(var(--u) * 6), calc(var(--u) * 6));
+}
+
+/* the kit's chevrons travelling at the right end: a sliding strip in a plain rectangle */
+.rw-go-chev {
+  position: absolute;
+  right: calc(var(--u) * 8);
+  top: calc(var(--u) * 8);
+  width: calc(var(--u) * 88);
+  height: calc(var(--u) * 28);
+  overflow: hidden;
+  opacity: 0.25;
+}
+
+.rw-go-chev i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--u) * -22);
+  right: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M2 2h6.5l8 8-8 8H2l8-8z'/%3E%3C/svg%3E") 0 50% / calc(var(--u) * 22) calc(var(--u) * 22) repeat-x;
+  animation: rw-chev 1.4s linear infinite;
+}
+
+.rw-go-label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: calc(var(--u) * 43);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--u) * 8);
+  font-family: 'Rw Display', var(--font-display);
+  font-style: normal;
+  font-weight: 800;
+  font-size: calc(var(--u) * 26);
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--on-go);
+}
+
+.rw-go-flash { opacity: 0; pointer-events: none; }
+.rw-go-flash path { fill: #fff; }
+
+.rw-go.is-claimed { cursor: default; }
+.rw-go.is-claimed .rw-go-fill { fill: var(--track); }
+.rw-go.is-claimed .rw-go-top { stroke: rgba(var(--hi), 0.12); }
+.rw-go.is-claimed .rw-go-chev { display: none; }
+.rw-go.is-claimed .rw-go-label { color: var(--text-dim); font-size: calc(var(--u) * 22); }
+.rw-go.is-claimed .rw-go-label svg { width: calc(var(--u) * 18); height: calc(var(--u) * 18); color: var(--good); }
+:where(:root[data-theme='light']) .rw-go.is-claimed .rw-go-fill { fill: var(--silver-1); }
+:where(:root[data-theme='light']) .rw-go.is-claimed .rw-go-top { stroke: rgba(var(--hi), 0.8); }
+
+.rw-go-sub {
+  position: absolute;
+  right: 0;
+  top: calc(var(--u) * 58);
+  font-family: 'Rw Display', var(--font-display);
+  font-weight: 700;
+  font-size: calc(var(--u) * 14);
+  line-height: 1;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  color: var(--text-dim);
+}
+
+/* ── INSPECT (§6) ───────────────────────────────────────────────────────────── */
+.rw-ins {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+}
+
+.rw-ins-veil {
+  position: absolute;
+  left: -50vw;
+  right: -50vw;
+  top: 0;
+  bottom: -50vh;
+  background: rgba(var(--veil), 0.82);
+  animation: rw-veil-in 150ms linear both;
+}
+
+:where(:root[data-theme='light']) .rw-ins-veil { background: rgba(238, 240, 243, 0.86); }
+.rw-ins-veil > .k-grain { --k-o: 0.07; }
+.rw-ins.is-closing .rw-ins-veil,
+.rw-ins.is-closing .rw-ins-info { animation: rw-veil-out 200ms linear both; }
+
+.rw-ins-obj {
+  position: absolute;
+  transform-origin: 0 0;
+}
+
+.rw-ins-tilt,
+.rw-ins-art {
+  position: absolute;
+  inset: 0;
+}
+
+.rw-ins-tilt { transform-origin: 50% 50%; }
+
+.rw-ins-glare-clip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+.rw-ins-glare-clip.is-card { inset: calc(var(--u) * 18); }
+
+/*
+  the specular glare: a transformed layer that follows the pointer, never a moving gradient. It is
+  out while the pointer is off the object. On a card it lights the paint the way gloss does
+  (overlay keeps the darks dark, no milky veil); the drawn pieces, masked to their outline, take
+  it as a plain sheen.
+*/
+.rw-ins-glare {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: radial-gradient(calc(var(--u) * 280) calc(var(--u) * 280) at 50% 50%, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0) 100%);
+  transition: opacity 0.2s ease;
+}
+
+.rw-ins-glare-clip.is-card .rw-ins-glare { mix-blend-mode: overlay; }
+
+.rw-ins-glare-clip:not(.is-card) .rw-ins-glare {
+  background: radial-gradient(calc(var(--u) * 280) calc(var(--u) * 280) at 50% 50%, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 100%);
+}
+
+.rw-ins-info {
+  position: absolute;
+  left: calc(var(--u) * 72);
+  bottom: calc(var(--u) * 84);
+  max-width: calc(var(--u) * 316);
+  animation: rw-veil-in 150ms linear both;
+}
+
+.rw-ins-kind {
+  font-size: calc(var(--u) * 14);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.22em;
+  color: var(--text-dim);
+}
+
+.rw-ins-name {
+  margin-top: calc(var(--u) * 10);
+  font-size: calc(var(--u) * 48);
+  font-weight: 900;
+  line-height: calc(var(--u) * 46);
+  color: var(--text);
+}
+
+.rw-ins-line {
+  margin-top: calc(var(--u) * 14);
+  font-size: calc(var(--u) * 15);
+  line-height: 1.45;
+  color: var(--text-mute);
+}
+
+.rw-ins-line .rw-syn { display: inline-block; vertical-align: -0.2em; margin: 0 calc(var(--u) * 3); }
+
+.rw-ins-serial {
+  margin-top: calc(var(--u) * 10);
+  font-family: 'Rw Display', var(--font-display);
+  font-weight: 700;
+  font-size: calc(var(--u) * 14);
+  line-height: 1;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+/* ── the arrival (§4), frame by frame from the mount (frame 5 of the reference) ── */
+.rw.is-arriving :is(.rw-l, .rw-lines) { animation: rw-in-l 167ms step-end both; }
+.rw.is-arriving .rw-title { animation: rw-in-title 133ms step-end both; }
+.rw.is-arriving .rw-pv.m-first .rw-pv-in { animation: rw-in-card 133ms step-end both; }
+.rw.is-arriving .rw-pv.m-first .ra-flash { animation: rw-in-flash 300ms step-end both; }
+.rw.is-arriving .rw-pv.m-first .ra-shine-run { animation-delay: 133ms; }
+.rw.is-arriving .rw-stage.is-object :is(.rw-glow, .rw-ring) { transition: none; animation: rw-in-card 133ms step-end both; }
+.rw.is-arriving :is(.rw-info, .rw-go-wrap) { animation: rw-in-info 300ms step-end both; }
+.rw.is-arriving :is(.rw-progress, .rw-track-line, .rw-dia) { animation: rw-in-track 433ms step-end both; }
+.rw.is-arriving .rw-thumb-in { animation: rw-in-thumbs 300ms step-end both; }
+.rw.is-arriving .rw-thumb-land { animation: rw-land 34ms step-end backwards; animation-delay: calc(300ms + var(--i, 0) * 33ms); }
+
+@keyframes rw-dip {
+  0% { opacity: 1; }
+  20% { opacity: 0.96; }
+  40% { opacity: 0.63; }
+  60% { opacity: 0.38; }
+  80% { opacity: 0.19; }
+  100% { opacity: 0; }
+}
+
+@keyframes rw-in-l {
+  0% { opacity: 0; }
+  20% { opacity: 0.04; }
+  40% { opacity: 0.37; }
+  60% { opacity: 0.62; }
+  80% { opacity: 0.81; }
+  100% { opacity: 1; }
+}
+
+@keyframes rw-in-title {
+  0% { opacity: 0; }
+  25% { opacity: 0.04; }
+  50% { opacity: 0.6; }
+  75% { opacity: 0.88; }
+  100% { opacity: 1; }
+}
+
+@keyframes rw-in-card {
+  0% { opacity: 0; }
+  25% { opacity: 0.04; }
+  50% { opacity: 0.37; }
+  75% { opacity: 0.64; }
+  100% { opacity: 1; }
+}
+
+/* the over-exposure: a white screen overlay on the card face, never a filter on the paint */
+@keyframes rw-in-flash {
+  0% { opacity: 0; }
+  44.4% { opacity: 0.05; }
+  55.6% { opacity: 0.4; }
+  66.7% { opacity: 0.35; }
+  77.8% { opacity: 0.22; }
+  88.9% { opacity: 0.06; }
+  100% { opacity: 0; }
+}
+
+@keyframes rw-in-info {
+  0% { opacity: 0; }
+  22.2% { opacity: 0.1; }
+  33.3% { opacity: 0.21; }
+  44.4% { opacity: 0.38; }
+  55.6% { opacity: 0.67; }
+  66.7% { opacity: 0.83; }
+  77.8% { opacity: 0.95; }
+  88.9% { opacity: 0.99; }
+  100% { opacity: 1; }
+}
+
+@keyframes rw-in-track {
+  0% { opacity: 0; }
+  15.4% { opacity: 0.11; }
+  23.1% { opacity: 0.19; }
+  30.8% { opacity: 0.3; }
+  38.5% { opacity: 0.49; }
+  46.2% { opacity: 0.65; }
+  53.8% { opacity: 0.75; }
+  61.5% { opacity: 0.86; }
+  69.2% { opacity: 0.9; }
+  76.9% { opacity: 0.92; }
+  84.6% { opacity: 0.95; }
+  92.3% { opacity: 0.97; }
+  100% { opacity: 1; }
+}
+
+/* the thumbs reach 0.90 together, then each lands 33 ms after the one on its left */
+@keyframes rw-in-thumbs {
+  0% { opacity: 0; }
+  22.2% { opacity: 0.12; }
+  33.3% { opacity: 0.21; }
+  44.4% { opacity: 0.33; }
+  55.6% { opacity: 0.54; }
+  66.7% { opacity: 0.72; }
+  77.8% { opacity: 0.83; }
+  88.9% { opacity: 0.96; }
+  100% { opacity: 1; }
+}
+
+@keyframes rw-land {
+  0% { opacity: 0.9; transform: translateY(calc(var(--u) * 4)); }
+  100% { opacity: 1; transform: none; }
+}
+
+@keyframes rw-leave {
+  0% { opacity: 0; }
+  25% { opacity: 0.12; }
+  50% { opacity: 0.54; }
+  75% { opacity: 0.85; }
+  100% { opacity: 1; }
+}
+
+@keyframes rw-pose {
+  0% { transform: scale(1.03) rotate(1.5deg); }
+  50% { transform: scale(1.015) rotate(0.75deg); }
+  100% { transform: none; }
+}
+
+@keyframes rw-gap {
+  0% { opacity: 0; }
+  25% { opacity: 0.33; }
+  50% { opacity: 0.67; }
+  75% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+@keyframes rw-gap-card {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes rw-fade-in {
+  0% { opacity: 0.33; }
+  33.3% { opacity: 0.67; }
+  66.7% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+@keyframes rw-fade-out {
+  0% { opacity: 0.67; }
+  33.3% { opacity: 0.33; }
+  66.7% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@keyframes rw-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(calc(var(--u) * -5)); }
+}
+
+@keyframes rw-sway {
+  0%, 100% { transform: perspective(calc(var(--u) * 1400)) rotateY(0deg); }
+  25% { transform: perspective(calc(var(--u) * 1400)) rotateY(1.5deg); }
+  75% { transform: perspective(calc(var(--u) * 1400)) rotateY(-1.5deg); }
+}
+
+@keyframes rw-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(calc(var(--u) * -6)); }
+}
+
+@keyframes rw-swing {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(1.2deg); }
+  75% { transform: rotate(-1.2deg); }
+}
+
+@keyframes rw-blink {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes rw-chev {
+  to { transform: translateX(calc(var(--u) * 22)); }
+}
+
+@keyframes rw-veil-in {
+  from { opacity: 0; }
+}
+
+@keyframes rw-veil-out {
+  to { opacity: 0; }
+}
+
+@keyframes rw-rm-in {
+  from { opacity: 0; }
+}
+
+/* reduced motion (§10): no flicker and no shine; the arrival is a 150 ms fade, swaps 120 ms */
+@media (prefers-reduced-motion: reduce) {
+  .rw.rw.is-arriving { animation: rw-rm-in 150ms linear both !important; animation-duration: 150ms !important; }
+  .rw.rw .rw-pv.is-in:not(.m-first) .rw-pv-in { animation: rw-rm-in 120ms linear both !important; animation-duration: 120ms !important; }
+  .rw :is(.rw-float, .rw-sway, .rw-bob, .rw-swing, .rw-streaks, .rw-go-chev i) { animation: none !important; }
+}

@@ -18,7 +18,9 @@
     linear-gradient(80deg, transparent 0 52%, rgba(var(--grain), 0.018) 52% 58%, transparent 58%),
     linear-gradient(180deg, var(--bar-1) 0%, var(--bar-2) 100%);
   box-shadow: var(--shadow-lift);
-  animation: nav-drop 0.7s var(--ease-out) both;
+  /* the entry fill holds only before the start: an animation that keeps filling after its end keeps
+     its element a composited layer for as long as the page is open */
+  animation: nav-drop 0.7s var(--ease-out) backwards;
 }
 
 :where(:root[data-theme='light']) .nav {
@@ -79,13 +81,22 @@
   text-transform: uppercase;
   color: var(--text-dim);
   transition: color 0.16s ease;
-  animation: tab-in 0.55s var(--ease-out) both;
+  /* the entry in two parts. The fade holds only before its start: a fill past the end would keep an
+     opacity effect on the tab, and round a flag that costs a render surface for good. The lift keeps
+     its fill, which keeps each tab its own layer as on the approved HOME: painted into the bar, the
+     labels would land a sub-pixel off. */
+  animation: tab-fade 0.55s var(--ease-out) backwards, tab-lift 0.55s var(--ease-out) both;
   animation-delay: calc(var(--i) * 42ms + 180ms);
 }
 
-@keyframes tab-in {
-  from { opacity: 0; transform: translateY(-60%) skewX(-8deg); }
-  to { opacity: 1; transform: none; }
+@keyframes tab-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes tab-lift {
+  from { transform: translateY(-60%) skewX(-8deg); }
+  to { transform: none; }
 }
 
 /* the leaning slab behind a tab: grows in from the left on hover; a lit plane and a fine hatch inside */
@@ -296,7 +307,8 @@
   display: flex;
   align-items: center;
   gap: calc(var(--u) * 8);
-  animation: tab-in 0.6s var(--ease-out) 0.42s both;
+  /* as the tabs: no lasting opacity effect (the mail flag), the lift keeps the cluster's raster */
+  animation: tab-fade 0.6s var(--ease-out) 0.42s backwards, tab-lift 0.6s var(--ease-out) 0.42s both;
 }
 
 /* currency: each count sits in a recessed, hatched well */

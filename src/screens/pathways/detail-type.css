@@ -1,0 +1,25 @@
+/*
+  The detail screen sets its title, card titles, counts and pips upright, as the reference does.
+  The app only loads Barlow Condensed's heavy weights in italic, so an upright 800 would be faked
+  from the 500. The real upright faces are registered here under their own family name: nothing
+  else on the site matches it, so HOME and the map keep exactly the faces they have today.
+*/
+@font-face {
+  font-family: 'ASCENT Upright';
+  font-style: normal;
+  font-weight: 800;
+  font-display: block;
+  src: url('../../../node_modules/@fontsource/barlow-condensed/files/barlow-condensed-latin-800-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'ASCENT Upright';
+  font-style: normal;
+  font-weight: 900;
+  font-display: block;
+  src: url('../../../node_modules/@fontsource/barlow-condensed/files/barlow-condensed-latin-900-normal.woff2') format('woff2');
+}
+
+.pd {
+  --font-upright: 'ASCENT Upright', 'Barlow Condensed', 'Arial Narrow', sans-serif;
+}

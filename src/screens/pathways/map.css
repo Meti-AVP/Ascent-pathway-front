@@ -1,0 +1,770 @@
+/*
+  PATHWAYS map: one blueprint sheet of interlocking panels. No stroke around any panel — a panel
+  is a fill, a lit top edge and a shaded foot drawn inside it (.pw-rim), a hatch, its picture and a
+  header strip. States:
+    locked  — the strip says what opens it; a faint picture; one dim title line;
+    cleared — the strip says CLEARED and the result; the picture in full colour; the title;
+    current — mostly picture: a heat hologram of the stage, CONTINUE >>> in a hot strip, the kind
+              and the title on a scrim, a heat drop under it, the one yellow cue (the chevron).
+  Motion is stepped like the reference and runs on the compositor (transform and opacity only).
+  Sizes in --u, colours from the semantic tokens.
+*/
+
+.pw-map {
+  position: relative;
+  /* panel colours by state; the art reads its colours from the --art-* set */
+  --pw-fill: color-mix(in srgb, var(--card-1) 90%, transparent);
+  --pw-band: rgba(var(--grain), 0.085);
+  --pw-on-band: var(--text-mute);
+  --pw-title: var(--text);
+  --art-ink: var(--text);
+  --art-lit: var(--silver-2);
+  --art-fill: var(--track);
+  --art-shade: rgba(var(--shade), 0.6);
+  --art-text: rgba(var(--lo), 0.34);
+  --art-line: rgba(var(--grain), 0.14);
+  --art-glyph: var(--text);
+  /* the arrival's flicker: one heat frame, then dim translucent heat-deep, mauve and silver-grey */
+  --fl-heat: var(--heat);
+  --fl-deep: var(--heat-deep);
+  --fl-mauve: color-mix(in srgb, var(--heat-deep) 48%, var(--silver-4));
+  --fl-grey: var(--silver-3);
+}
+
+:where(:root[data-theme='light']) .pw-map {
+  --pw-fill: color-mix(in srgb, var(--card-1) 92%, transparent);
+  --pw-band: rgba(var(--grain), 0.06);
+  --art-lit: var(--white);
+  --art-fill: var(--silver-2);
+  --art-shade: rgba(var(--shade), 0.22);
+  --art-text: rgba(0, 0, 0, 0.3);
+  --fl-mauve: color-mix(in srgb, var(--heat-deep) 40%, var(--silver-3));
+  --fl-grey: var(--silver-4);
+}
+
+/* ── one panel ─────────────────────────────────────────────────── */
+.pw-panel {
+  position: absolute;
+  pointer-events: none;
+  /* when this panel lands: 70 ms after the map mounts, then one every 55 ms */
+  --t: calc(var(--pw-t0, 70ms) + var(--i) * 55ms);
+}
+
+.pw-panel.is-locked {
+  --pw-fill: color-mix(in srgb, var(--card-2) 82%, transparent);
+  --pw-band: rgba(var(--grain), 0.06);
+  --pw-on-band: var(--text-dim);
+  --pw-title: var(--text-dim);
+}
+
+:where(:root[data-theme='light']) .pw-panel.is-locked {
+  --pw-fill: color-mix(in srgb, var(--card-2) 86%, transparent);
+}
+
+.pw-panel.is-hero {
+  --pw-band: var(--heat);
+  --pw-on-band: var(--on-heat);
+  --pw-title: var(--on-heat);
+}
+
+.pw-drop,
+.pw-svg,
+.pw-flash,
+.pw-wash {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* the drop: an offset copy of the shape. Only the current stage (and a finished pathway's summit)
+   stands on one at rest, in heat; any panel shows one while it has keyboard focus. */
+.pw-drop {
+  transform: translate(calc(var(--u) * 7), calc(var(--u) * 9));
+  fill: var(--heat-hot);
+  opacity: 0;
+}
+
+.pw-panel.is-hero .pw-drop {
+  fill: color-mix(in srgb, var(--heat) 78%, transparent);
+  opacity: 1;
+  animation: pw-appear 0.15s steps(1) backwards;
+  animation-delay: calc(var(--t) + 90ms);
+}
+
+@keyframes pw-appear {
+  from { opacity: 0; }
+}
+
+/* the landing: an overflow-clipped outer slides in from the left while its inner slides back, so
+   the panel is revealed left to right with transforms only */
+.pw-land,
+.pw-land-in {
+  position: absolute;
+  inset: 0;
+}
+
+.pw-land {
+  overflow: hidden;
+  animation: pw-land 0.15s var(--ease-out) backwards;
+  animation-delay: var(--t);
+}
+
+.pw-land-in {
+  animation: pw-land-in 0.15s var(--ease-out) backwards;
+  animation-delay: var(--t);
+}
+
+@keyframes pw-land {
+  from { transform: translateX(-100%); }
+}
+
+@keyframes pw-land-in {
+  from { transform: translateX(100%); }
+}
+
+.pw-face {
+  position: absolute;
+  inset: 0;
+}
+
+.pw-face:active { transform: translate(calc(var(--u) * 2), calc(var(--u) * 2)); }
+
+.pw-hit {
+  position: absolute;
+  inset: 0;
+  display: block;
+  /* the outline answers the pointer (.pw-body), not the box: neighbours interlock */
+  pointer-events: none;
+  text-align: left;
+}
+
+.pw-hit:focus-visible { outline: none; }
+
+/* ── the drawing ───────────────────────────────────────────────── */
+.pw-body {
+  fill: var(--pw-fill);
+  pointer-events: fill;
+  cursor: pointer;
+}
+
+.pw-panel.is-locked .pw-body { cursor: not-allowed; }
+
+.pw-hatch { opacity: 0.55; }
+.pd-hatch { fill: rgba(var(--grain), 0.05); }
+.pd-dot { fill: rgba(var(--grain), 0.2); }
+.pd-grid { stroke: rgba(var(--grain), 0.07); stroke-width: 1; }
+.pd-scan { fill: rgba(var(--hi), 0.06); }
+.pd-light0 { stop-color: rgb(var(--hi)); stop-opacity: 0.07; }
+.pd-light1 { stop-color: rgb(var(--hi)); stop-opacity: 0; }
+.pd-scrim0 { stop-color: var(--card-2); stop-opacity: 0; }
+.pd-scrim1 { stop-color: var(--card-2); stop-opacity: 0.94; }
+.pd-rim0 { stop-color: rgb(var(--hi)); stop-opacity: 0.32; }
+.pd-rim1 { stop-color: rgb(var(--hi)); stop-opacity: 0; }
+.pd-rim2 { stop-color: rgb(var(--lo)); stop-opacity: 0.5; }
+
+:where(:root[data-theme='light']) .pd-scrim1 { stop-opacity: 0.9; }
+:where(:root[data-theme='light']) .pd-rim0 { stop-opacity: 1; }
+:where(:root[data-theme='light']) .pd-rim2 { stop-opacity: 0.12; }
+
+.pw-rim {
+  fill: none;
+  stroke: url(#pw-rim);
+  stroke-width: 4;
+}
+
+/* keyboard focus: a 2 u light rim drawn inside the outline (the stroke is half clipped away) */
+.pw-focus-rim {
+  fill: none;
+  stroke: rgba(var(--hi), 0.5);
+  stroke-width: 4;
+  opacity: 0;
+}
+
+:where(:root[data-theme='light']) .pw-focus-rim { stroke: rgba(var(--lo), 0.42); }
+
+.pw-band { fill: var(--pw-band); }
+.pw-band-lit { fill: rgba(var(--hi), 0.14); }
+.pw-band-base { fill: rgba(var(--lo), 0.2); }
+.pw-panel.is-hero .pw-band-lit { fill: rgba(var(--hi), 0.42); }
+
+/* the leg of an L-shaped panel: a stair drawn on a grid */
+.pw-leg path {
+  fill: none;
+  stroke: rgba(var(--grain), 0.12);
+  stroke-width: 2;
+  stroke-dasharray: 8 5;
+}
+
+/* ── the picture ───────────────────────────────────────────────── */
+.pw-art * { vector-effect: non-scaling-stroke; }
+.pw-art .a-lit { fill: var(--art-lit); }
+.pw-art .a-fill { fill: var(--art-fill); }
+.pw-art .a-shade { fill: var(--art-shade); }
+.pw-art .a-hot { fill: var(--heat); }
+/* no yellow in art: the chart line and the tallest bar are heat */
+.pw-art .a-go { fill: var(--heat-hot); }
+.pw-art .a-good { fill: var(--good); }
+.pw-art .a-ink { fill: var(--art-ink); }
+.pw-art .a-glow { fill: color-mix(in srgb, var(--heat) 22%, transparent); }
+.pw-art .a-ray { fill: rgba(var(--grain), 0.055); }
+.pw-art .a-pattern { opacity: 0.9; }
+.pw-art .a-glyph { fill: var(--art-glyph); }
+.pw-art .a-line { fill: none; stroke: var(--art-line); stroke-width: 1.4; }
+.pw-art .a-text { fill: none; stroke: var(--art-text); stroke-width: 2.2; stroke-linecap: round; }
+.pw-art .a-ink-line { fill: none; stroke: var(--art-ink); stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
+.pw-art .a-go-line { fill: none; stroke: var(--heat-hot); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+.pw-art .a-good-line { fill: none; stroke: var(--good); stroke-width: 6; }
+.pw-art .a-track { fill: none; stroke: var(--art-fill); stroke-width: 6; }
+.pw-art .a-tick { fill: none; stroke: var(--on-good); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.pw-art .a-box { fill: none; stroke: var(--art-text); stroke-width: 2; }
+
+/* locked: the picture is a faint, single-tone ghost of itself */
+.pw-panel.is-locked .pw-art { opacity: 0.12; }
+.pw-panel.is-locked .pw-art :is(.a-lit, .a-ink, .a-glyph) { fill: rgb(var(--grain)); }
+.pw-panel.is-locked .pw-art :is(.a-fill, .a-hot, .a-go, .a-good) { fill: rgba(var(--grain), 0.6); }
+.pw-panel.is-locked .pw-art :is(.a-shade, .a-glow) { fill: rgba(var(--grain), 0.3); }
+.pw-panel.is-locked .pw-art .a-ray { fill: rgba(var(--grain), 0.25); }
+.pw-panel.is-locked .pw-art :is(.a-line, .a-text, .a-box, .a-track) { stroke: rgba(var(--grain), 0.7); }
+.pw-panel.is-locked .pw-art :is(.a-ink-line, .a-go-line, .a-good-line, .a-tick) { stroke: rgb(var(--grain)); }
+.pw-panel.is-locked .pw-art .a-pattern { opacity: 0.5; }
+
+/* ── the hologram on the current stage (and a finished pathway's lit summit) ──
+   A lit screen, the same in both themes: a hot ground, a glow behind the drawing, light streaks,
+   the drawing in light line-work on its deck, scan lines over all, a scrim under the copy. */
+.pw-panel.is-hero .pw-body { fill: url(#pw-holo-ground); }
+.hd-ground0 { stop-color: color-mix(in srgb, var(--heat-deep) 52%, #000); }
+.hd-ground1 { stop-color: var(--heat-deep); }
+.hd-ground2 { stop-color: var(--heat); }
+.hd-glow0 { stop-color: var(--heat-hot); stop-opacity: 0.62; }
+.hd-glow1 { stop-color: var(--heat-hot); stop-opacity: 0; }
+.hd-scrim0 { stop-color: color-mix(in srgb, var(--heat-deep) 30%, #000); stop-opacity: 0.86; }
+.hd-scrim1 { stop-color: color-mix(in srgb, var(--heat-deep) 30%, #000); stop-opacity: 0; }
+.hd-scrim2 { stop-color: #000; stop-opacity: 0; }
+.hd-streak0 { stop-color: #fff; stop-opacity: 0; }
+.hd-streak1 { stop-color: #fff; stop-opacity: 0.2; }
+.hd-scan { fill: rgba(0, 0, 0, 0.17); }
+
+.pw-holo-streaks .is-1 { opacity: 0.7; }
+.pw-holo-streaks .is-3 { opacity: 0.9; }
+
+.pw-holo * { vector-effect: non-scaling-stroke; }
+.pw-holo .a-pattern { display: none; }
+.pw-holo .a-glow { fill: rgba(255, 255, 255, 0.05); }
+.pw-holo .a-ray { fill: rgba(255, 255, 255, 0.045); }
+.pw-holo .a-line { fill: none; stroke: rgba(255, 255, 255, 0.34); stroke-width: 1.2; }
+.pw-holo .a-text { fill: none; stroke: rgba(255, 255, 255, 0.5); stroke-width: 1.8; stroke-linecap: round; }
+.pw-holo :is(.a-lit, .a-fill, .a-good) { fill: rgba(255, 255, 255, 0.1); stroke: rgba(255, 255, 255, 0.86); stroke-width: 1.5; stroke-linejoin: round; }
+.pw-holo .a-lit { fill: rgba(255, 255, 255, 0.17); }
+.pw-holo .a-shade { fill: rgba(0, 0, 0, 0.16); }
+.pw-holo :is(.a-hot, .a-go) { fill: color-mix(in srgb, var(--heat-hot) 70%, #fff); fill-opacity: 0.5; stroke: #ffe3d2; stroke-width: 1.5; stroke-linejoin: round; }
+.pw-holo .a-ink { fill: rgba(255, 255, 255, 0.92); }
+.pw-holo .a-ink-line { fill: none; stroke: #fff; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.pw-holo :is(.a-go-line, .a-good-line) { fill: none; stroke: rgba(255, 255, 255, 0.75); stroke-width: 2.4; }
+.pw-holo .a-track { fill: none; stroke: rgba(255, 255, 255, 0.24); stroke-width: 4; }
+.pw-holo .a-tick { fill: none; stroke: var(--heat-deep); stroke-width: 2; }
+.pw-holo .a-box { fill: none; stroke: rgba(255, 255, 255, 0.6); stroke-width: 1.5; }
+/* the emblem reads the same in both themes: solid light with an ink edge */
+.pw-holo .a-glyph { fill: #fff; stroke: color-mix(in srgb, var(--heat-deep) 60%, #000); stroke-width: 1.6; paint-order: stroke; }
+.pw-holo .h-beam { fill: rgba(255, 255, 255, 0.05); }
+.pw-holo .h-beam.is-b { fill: rgba(255, 255, 255, 0.07); }
+.pw-holo .h-disc { fill: rgba(255, 255, 255, 0.08); }
+.pw-holo .h-ring { fill: none; stroke: rgba(255, 255, 255, 0.72); stroke-width: 1.5; }
+.pw-holo .h-ring.is-b { stroke: rgba(255, 255, 255, 0.42); }
+.pw-holo .h-ring.is-c { stroke: rgba(255, 255, 255, 0.32); }
+.pw-holo .h-spoke { fill: none; stroke: rgba(255, 255, 255, 0.2); stroke-width: 1; }
+.pw-holo .h-arc { fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; }
+
+/* ── header strip, number tile, copy ───────────────────────────── */
+.pw-head {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 7);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 700;
+  font-size: calc(var(--u) * 17);
+  line-height: 1;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--pw-on-band);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.pw-head svg {
+  flex: none;
+  width: calc(var(--u) * 16);
+  height: calc(var(--u) * 16);
+}
+
+.pw-panel.is-done .pw-check { color: var(--good); }
+.pw-panel.is-hero .pw-head { font-weight: 800; }
+.pw-panel.is-lit .pw-check { color: var(--on-heat); }
+
+.pw-head-end {
+  margin-left: auto;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.pw-panel.is-done:not(.is-lit) .pw-head-end { color: var(--text); }
+
+/* CONTINUE >>> : chevrons that run. The <i> carries the opacity step; its ::before is the painted
+   shape, so no animated element has a clip-path of its own. */
+.pw-chevs {
+  display: flex;
+  gap: calc(var(--u) * 1);
+}
+
+.pw-chevs i {
+  position: relative;
+  width: calc(var(--u) * 10);
+  height: calc(var(--u) * 14);
+  opacity: 0.3;
+  animation: pw-chev 0.9s steps(1) infinite;
+  animation-delay: calc(var(--c, 0) * 0.3s - 0.9s);
+}
+
+.pw-chevs i::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  clip-path: polygon(0 0, 45% 0, 100% 50%, 45% 100%, 0 100%, 55% 50%);
+}
+
+.pw-chevs i:nth-child(2) { --c: 1; }
+.pw-chevs i:nth-child(3) { --c: 2; }
+
+/* a marquee: each chevron lights in turn */
+@keyframes pw-chev {
+  0% { opacity: 1; }
+  34% { opacity: 0.3; }
+  100% { opacity: 0.3; }
+}
+
+/* the black number tile: upright, the figure in white, the state in a pip inside its corner */
+.pw-num {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  border-radius: calc(var(--u) * 3);
+  background:
+    linear-gradient(0deg, rgba(var(--hi), 0.3) 0 calc(var(--u) * 2), transparent calc(var(--u) * 2)),
+    linear-gradient(180deg, rgba(var(--hi), 0.12) 0 calc(var(--u) * 1.5), transparent calc(var(--u) * 1.5)),
+    var(--label);
+  pointer-events: none;
+}
+
+.pw-num::after {
+  content: '';
+  position: absolute;
+  top: calc(var(--u) * 3);
+  right: calc(var(--u) * 3);
+  width: calc(var(--u) * 7);
+  height: calc(var(--u) * 7);
+  border-radius: calc(var(--u) * 1.5);
+  background: var(--silver-3);
+}
+
+.pw-panel.is-done .pw-num::after { background: var(--good); }
+.pw-panel.is-current .pw-num::after { background: var(--heat-hot); }
+.pw-panel.is-locked .pw-num::after { background: var(--silver-4); }
+
+.pw-num b {
+  position: relative;
+  font-size: calc(var(--u) * 28);
+  font-weight: 900;
+  line-height: 1;
+  color: var(--on-label);
+  transform: translateX(calc(var(--u) * -1));
+}
+
+.pw-copy {
+  position: absolute;
+  display: grid;
+  justify-items: start;
+  pointer-events: none;
+}
+
+.pw-kind {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-style: italic;
+  line-height: 1;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.pw-stage {
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--pw-title);
+}
+
+.pw-panel.is-hero .pw-stage {
+  font-weight: 900;
+  text-shadow: calc(var(--u) * 2) calc(var(--u) * 2) 0 rgba(0, 0, 0, 0.55);
+}
+
+/* ── the current stage's motion: glitch bars and the one yellow cue ── */
+.pw-fx {
+  position: absolute;
+  pointer-events: none;
+}
+
+.pw-glitch {
+  position: absolute;
+  inset: 12% 0 30% 18%;
+}
+
+.pw-glitch i {
+  position: absolute;
+  right: 0;
+  height: calc(var(--u) * 2);
+  border-radius: 9px;
+  opacity: 0;
+  animation: pw-glitch 3.2s steps(1) infinite;
+}
+
+.pw-glitch i:nth-child(1) { top: 8%; width: 58%; background: rgba(255, 255, 255, 0.85); }
+.pw-glitch i:nth-child(2) { top: 50%; width: 84%; background: color-mix(in srgb, var(--heat-hot) 60%, #fff); animation-delay: 0.9s; }
+.pw-glitch i:nth-child(3) { top: 88%; width: 40%; background: rgba(255, 255, 255, 0.7); animation-delay: 1.7s; }
+
+@keyframes pw-glitch {
+  0%, 100% { opacity: 0; transform: translateX(0); }
+  4% { opacity: 0.9; transform: translateX(calc(var(--u) * -18)); }
+  8% { opacity: 0.3; transform: translateX(calc(var(--u) * 10)); }
+  11% { opacity: 0; }
+}
+
+/* the reference's double chevron: "start here" — the map's one yellow cue */
+.pw-down {
+  position: absolute;
+  width: calc(var(--u) * 30);
+  height: calc(var(--u) * 34);
+}
+
+.pw-down i {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: calc(var(--u) * 15);
+  animation: pw-down 1.2s steps(1) infinite;
+}
+
+.pw-down i::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--go);
+  clip-path: polygon(0 0, 22% 0, 50% 52%, 78% 0, 100% 0, 50% 100%);
+}
+
+.pw-down i:nth-child(1) { top: 0; opacity: 0.6; }
+.pw-down i:nth-child(2) { top: calc(var(--u) * 13); }
+
+@keyframes pw-down {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(calc(var(--u) * 4)); }
+}
+
+/* ── hover and focus: an open stage goes hot ───────────────────── */
+.pw-marks {
+  position: absolute;
+  width: calc(var(--u) * 34);
+  height: calc(var(--u) * 34);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pw-marks i {
+  position: absolute;
+  width: calc(var(--u) * 9);
+  height: calc(var(--u) * 9);
+  border-radius: calc(var(--u) * 1.5);
+  background: var(--heat-hot);
+}
+
+.pw-marks i:nth-child(1) { left: 0; top: 0; }
+.pw-marks i:nth-child(2) { right: 0; top: 0; }
+.pw-marks i:nth-child(3) { left: 0; bottom: 0; }
+.pw-marks i:nth-child(4) { right: 0; bottom: 0; }
+
+.pw-face:is(:hover, :has(.pw-hit:focus-visible)) .pw-marks {
+  opacity: 1;
+  animation: pw-marks 0.95s steps(1) infinite;
+}
+
+/* all four together: on 0.45 s, off 0.5 s */
+@keyframes pw-marks {
+  0% { opacity: 1; }
+  47.4% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+/* the strip turns heat (the current stage's goes hotter) */
+.pw-panel.is-done .pw-face:is(:hover, :has(.pw-hit:focus-visible)) .pw-band { fill: var(--heat); }
+.pw-panel.is-done .pw-face:is(:hover, :has(.pw-hit:focus-visible)) .pw-head { color: var(--on-heat); }
+.pw-panel.is-done .pw-face:is(:hover, :has(.pw-hit:focus-visible)) :is(.pw-check, .pw-head-end) { color: var(--on-heat); }
+.pw-panel.is-hero .pw-face:is(:hover, :has(.pw-hit:focus-visible)) .pw-band { fill: var(--heat-hot); }
+
+/* a locked stage only brightens a little */
+.pw-panel.is-locked .pw-face:is(:hover, :has(.pw-hit:focus-visible)) .pw-art { opacity: 0.2; }
+.pw-panel.is-locked .pw-face:is(:hover, :has(.pw-hit:focus-visible)) { --pw-on-band: var(--text-mute); --pw-title: var(--text-mute); --pw-band: rgba(var(--grain), 0.09); }
+
+/* keyboard focus: a heat-hot drop and the light rim inside — never on a mouse press */
+.pw-panel:has(.pw-hit:focus-visible) .pw-drop { fill: var(--heat-hot); opacity: 1; }
+.pw-face:has(.pw-hit:focus-visible) .pw-focus-rim { opacity: 1; }
+
+/* the wash: four stepped frames of 33 ms — heat, heat into mauve, white, a scan-lined settle */
+.pw-wash { opacity: 0; }
+.pw-wash.is-w1 path { fill: var(--heat); }
+.pw-wash.is-w2 path { fill: url(#pw-wash-grad); }
+.pw-wash.is-w3 path { fill: #fff; }
+.pw-wash.is-w4 path { fill: url(#pw-wash-scan); }
+.wd-grad0 { stop-color: var(--heat); stop-opacity: 0.6; }
+.wd-grad1 { stop-color: var(--fl-mauve); stop-opacity: 0.45; }
+.wd-scan { fill: #fff; }
+
+.pw-face:is(:hover, :has(.pw-hit:focus-visible)) .pw-wash { animation: 0.133s steps(1) both; }
+.pw-face:is(:hover, :has(.pw-hit:focus-visible)) .pw-wash.is-w1 { animation-name: pw-w1; }
+.pw-face:is(:hover, :has(.pw-hit:focus-visible)) .pw-wash.is-w2 { animation-name: pw-w2; }
+.pw-face:is(:hover, :has(.pw-hit:focus-visible)) .pw-wash.is-w3 { animation-name: pw-w3; }
+.pw-face:is(:hover, :has(.pw-hit:focus-visible)) .pw-wash.is-w4 { animation-name: pw-w4; }
+
+@keyframes pw-w1 { 0% { opacity: 0.85; } 25%, 100% { opacity: 0; } }
+@keyframes pw-w2 { 0% { opacity: 0; } 25% { opacity: 1; } 50%, 100% { opacity: 0; } }
+@keyframes pw-w3 { 0%, 25% { opacity: 0; } 50% { opacity: 0.85; } 75%, 100% { opacity: 0; } }
+@keyframes pw-w4 { 0%, 50% { opacity: 0; } 75% { opacity: 0.25; } 100% { opacity: 0; } }
+
+/* ── arrival: flat colour silhouettes flicker over the landing, 30 ms frames ── */
+/* no fill: before its turn a panel shows nothing at all, after it only the panel */
+.pw-flash {
+  opacity: 0;
+  animation: 0.15s steps(1);
+  animation-delay: var(--t);
+}
+
+.pw-flash.is-f1 path { fill: var(--fl-heat); }
+.pw-flash.is-f2 path { fill: var(--fl-deep); }
+.pw-flash.is-f3 path { fill: var(--fl-mauve); }
+.pw-flash.is-f4 path { fill: var(--fl-grey); }
+
+/* frame 1 is always heat; frames 2–4 take heat-deep (f2), mauve (f3) and silver-grey (f4) in an
+   order that turns with the panel; heat-deep also takes frame 5, a last breath */
+.pw-flash.is-f1 { animation-name: pw-fr1; }
+.pw-panel.v0 .pw-flash.is-f2 { animation-name: pw-fr2e; }
+.pw-panel.v0 .pw-flash.is-f3 { animation-name: pw-fr3; }
+.pw-panel.v0 .pw-flash.is-f4 { animation-name: pw-fr4; }
+.pw-panel.v1 .pw-flash.is-f2 { animation-name: pw-fr4e; }
+.pw-panel.v1 .pw-flash.is-f3 { animation-name: pw-fr2; }
+.pw-panel.v1 .pw-flash.is-f4 { animation-name: pw-fr3; }
+.pw-panel.v2 .pw-flash.is-f2 { animation-name: pw-fr3e; }
+.pw-panel.v2 .pw-flash.is-f3 { animation-name: pw-fr4; }
+.pw-panel.v2 .pw-flash.is-f4 { animation-name: pw-fr2; }
+
+@keyframes pw-fr1 { 0% { opacity: 0.95; } 20%, 100% { opacity: 0; } }
+@keyframes pw-fr2 { 0% { opacity: 0; } 20% { opacity: 0.62; } 40%, 100% { opacity: 0; } }
+@keyframes pw-fr3 { 0% { opacity: 0; } 40% { opacity: 0.5; } 60%, 100% { opacity: 0; } }
+@keyframes pw-fr4 { 0% { opacity: 0; } 60% { opacity: 0.36; } 80%, 100% { opacity: 0; } }
+@keyframes pw-fr2e { 0% { opacity: 0; } 20% { opacity: 0.62; } 40% { opacity: 0; } 80% { opacity: 0.2; } 100% { opacity: 0; } }
+@keyframes pw-fr3e { 0% { opacity: 0; } 40% { opacity: 0.5; } 60% { opacity: 0; } 80% { opacity: 0.2; } 100% { opacity: 0; } }
+@keyframes pw-fr4e { 0% { opacity: 0; } 60% { opacity: 0.36; } 80% { opacity: 0.2; } 100% { opacity: 0; } }
+
+/* the panel that opens: a heat frame, a white frame, then it holds hot until the detail mounts */
+.pw-map .pw-panel.is-launch .pw-face .pw-wash.is-w1 { animation: pw-launch-heat 0.1s steps(1) forwards; }
+.pw-map .pw-panel.is-launch .pw-face .pw-wash.is-w3 { animation: pw-launch-white 0.1s steps(1) forwards; }
+.pw-map .pw-panel.is-launch .pw-face .pw-wash:is(.is-w2, .is-w4) { animation: none; }
+
+@keyframes pw-launch-heat {
+  0% { opacity: 0.9; }
+  33% { opacity: 0; }
+  66%, 100% { opacity: 1; }
+}
+
+@keyframes pw-launch-white {
+  0%, 33% { opacity: 0; }
+  33.01% { opacity: 0.85; }
+  66%, 100% { opacity: 0; }
+}
+
+.pw-map.is-launching .pw-panel:not(.is-launch) {
+  opacity: 0.35;
+  transition: opacity 0.1s steps(2);
+}
+
+/* ── the elevation ruler beside the sheet ──────────────────────── */
+.pw-ruler {
+  position: absolute;
+  right: calc(var(--u) * -34);
+  top: 0;
+  bottom: 0;
+  width: calc(var(--u) * 26);
+  background:
+    repeating-linear-gradient(180deg, rgba(var(--grain), 0.18) 0 calc(var(--u) * 1.5), transparent calc(var(--u) * 1.5) calc(var(--u) * 17.5)) right / calc(var(--u) * 7) 100% no-repeat,
+    repeating-linear-gradient(180deg, rgba(var(--grain), 0.26) 0 calc(var(--u) * 1.5), transparent calc(var(--u) * 1.5) calc(var(--u) * 70)) right / calc(var(--u) * 14) 100% no-repeat;
+  opacity: 0.5;
+  pointer-events: none;
+  animation: pw-fade 0.4s ease 0.6s backwards;
+}
+
+.pw-ruler span {
+  position: absolute;
+  right: calc(var(--u) * 18);
+  display: grid;
+  justify-items: end;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: calc(var(--u) * 11);
+  line-height: 1.3;
+  letter-spacing: 0.16em;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+.pw-ruler b {
+  font-weight: 800;
+  font-style: italic;
+  font-size: calc(var(--u) * 14);
+  line-height: 1.3;
+  color: var(--heat);
+}
+
+.pw-ruler i { font-style: normal; }
+
+@keyframes pw-fade {
+  from { opacity: 0; }
+}
+
+/* ── a finished pathway: the summit is lit and the sheet is stamped ── */
+.pw-complete {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.pw-complete-stamp {
+  position: relative;
+  display: block;
+  transform: rotate(-6deg);
+  animation: pw-stamp 0.32s var(--ease-snap) 0.72s backwards;
+}
+
+/* stamped in: it drops from above the sheet, bites, settles */
+@keyframes pw-stamp {
+  0% { opacity: 0; transform: rotate(-13deg) scale(1.7); }
+  45% { opacity: 1; transform: rotate(-5deg) scale(0.94); }
+  70% { transform: rotate(-6.5deg) scale(1.03); }
+  100% { transform: rotate(-6deg) scale(1); }
+}
+
+.pw-complete-plate {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  overflow: hidden;
+  width: calc(var(--u) * 396);
+  height: calc(var(--u) * 132);
+  border-radius: calc(var(--u) * 12);
+  transform: skewX(var(--lean));
+  background: var(--silver-sheen);
+  box-shadow: calc(var(--u) * 8) calc(var(--u) * 10) 0 color-mix(in srgb, var(--heat) 85%, transparent), var(--shadow-lift);
+}
+
+.pw-complete-plate > .k-hatch { --k-ink: rgba(0, 0, 0, 0.07); --k-step: 7; }
+
+/* the heat band at its head, a white check stamped through it */
+.pw-complete-band {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: calc(var(--u) * 92);
+  height: 100%;
+  background:
+    repeating-linear-gradient(102deg, rgba(0, 0, 0, 0.1) 0 calc(var(--u) * 2), transparent 0 calc(var(--u) * 8)),
+    var(--heat);
+  color: #fff;
+}
+
+.pw-complete-band svg {
+  width: calc(var(--u) * 46);
+  height: calc(var(--u) * 46);
+  transform: skewX(var(--lean-back));
+  filter: drop-shadow(calc(var(--u) * 2) calc(var(--u) * 2) 0 rgba(0, 0, 0, 0.35));
+}
+
+/* the stamp's double rule, drawn inside the plate */
+.pw-complete-inner {
+  position: absolute;
+  inset: calc(var(--u) * 9) calc(var(--u) * 10) calc(var(--u) * 9) calc(var(--u) * 102);
+  border-radius: calc(var(--u) * 6);
+  box-shadow: inset 0 0 0 calc(var(--u) * 2) rgba(0, 0, 0, 0.55), inset 0 0 0 calc(var(--u) * 5) transparent, inset 0 0 0 calc(var(--u) * 6) color-mix(in srgb, var(--heat) 70%, transparent);
+}
+
+.pw-complete-copy {
+  position: relative;
+  display: grid;
+  justify-items: start;
+  row-gap: calc(var(--u) * 4);
+  padding-left: calc(var(--u) * 22);
+  transform: skewX(var(--lean-back));
+  color: #000;
+}
+
+.pw-complete-top {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 800;
+  font-size: calc(var(--u) * 17);
+  line-height: 1.2;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--heat-deep);
+}
+
+.pw-complete-word {
+  font-size: calc(var(--u) * 48);
+  font-weight: 900;
+  line-height: 1.12;
+  color: #000;
+}
+
+.pw-complete-sub {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 700;
+  font-size: calc(var(--u) * 13);
+  line-height: 1.2;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.72);
+}
+
+/* the bite of the stamp: one heat frame and one white frame on impact */
+.pw-complete-flash {
+  position: absolute;
+  inset: calc(var(--u) * -10);
+  border-radius: calc(var(--u) * 18);
+  transform: skewX(var(--lean));
+  background: var(--heat-hot);
+  opacity: 0;
+  animation: pw-stamp-flash 0.1s steps(1) 0.86s backwards;
+}
+
+@keyframes pw-stamp-flash {
+  0% { opacity: 0.8; }
+  33% { opacity: 0.5; background: #fff; }
+  66%, 100% { opacity: 0; }
+}
+
+/* the summit of a finished pathway glows a little brighter */
+.pw-map.is-complete .pw-panel.is-lit .pw-holo-glow { opacity: 1; }

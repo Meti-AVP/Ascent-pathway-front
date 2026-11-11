@@ -10,7 +10,8 @@
   font-size: calc(var(--u) * 17);
   color: var(--text-dim);
   background: linear-gradient(180deg, rgba(var(--veil), 0) 0%, rgba(var(--veil), 0.82) 70%);
-  animation: bar-in 0.7s var(--ease-out) 0.7s both;
+  /* backwards only: a fill past the end would keep the bar a composited layer for good (see .nav) */
+  animation: bar-in 0.7s var(--ease-out) 0.7s backwards;
 }
 
 /* a fine halftone rises out of the foot of the screen */

@@ -1,0 +1,364 @@
+/*
+  RewardArt: each reward drawn in its own form, filling the box its caller gives it.
+  The gallery card is a size container and every measure inside it is a share of the card
+  (cqh / cqw of the 560 × 350 u design), so the same card reads at the preview, INSPECT, the
+  map's block and the thumbnail. The SVG pieces scale through their viewBox. Heat comes from the
+  tokens, so both themes paint it; the art's graphite and silver are the object's own colours and
+  stay the same in both.
+*/
+
+.reward-art {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.ra-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* paint helpers for the SVG pieces */
+.ra-drop { fill: rgba(0, 0, 0, 0.42); }
+:where(:root[data-theme='light']) .ra-drop { fill: rgba(var(--shade), 0.26); }
+
+.ra-stop-hot { stop-color: var(--heat-hot); }
+.ra-stop-heat { stop-color: var(--heat); }
+.ra-stop-deep { stop-color: var(--heat-deep); }
+.ra-s-heat { stroke: var(--heat-hot); }
+.ra-f-deep { fill: var(--heat-deep); }
+
+.ra-type {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+
+.ra-tag {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+/* ── gallery card ──────────────────────────────────────────────── */
+.reward-art.is-card { container-type: size; }
+
+.ra-paper {
+  /* the figure framing: 600 u tall on a 350 u card, waist cut, right of centre */
+  --ra-ph: 171.43cqh;
+  --ra-px: 22.9cqw;
+  --ra-py: -2.3cqh;
+  --ra-ray: 61% 16%;
+  position: absolute;
+  inset: 0;
+  border-radius: 1.15cqh;
+  background: var(--white);
+  box-shadow: 0 7.4cqh 14.3cqh rgba(var(--shade), 0.55);
+}
+
+/* the bust framing: 800 u tall, shifted up to the head and shoulders */
+.ra-paper.is-bust {
+  --ra-ph: 228.57cqh;
+  --ra-px: 10.55cqw;
+  --ra-py: -10.8cqh;
+  --ra-ray: 60% 22%;
+}
+
+/* INSPECT: always the figure, about 1000 u tall on the 1120 × 700 card (≤ 1× of the source) */
+.is-inspect > .ra-paper {
+  --ra-ph: 142.86cqh;
+  --ra-px: 29.1cqw;
+  --ra-py: -5.3cqh;
+  --ra-ray: 61% 14%;
+}
+
+:where(:root[data-theme='light']) .ra-paper { box-shadow: 0 6.3cqh 12.6cqh rgba(var(--shade), 0.22); }
+
+.ra-face {
+  position: absolute;
+  inset: 2.57cqh;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 0.6cqh;
+  background: var(--heat-deep);
+}
+
+/* white theme: a 1 u line where the white border meets the picture */
+:where(:root[data-theme='light']) .ra-face { box-shadow: 0 0 0 0.29cqh rgba(var(--shade), 0.14); }
+
+.ra-card-bg,
+.ra-card-rays,
+.ra-card-dots,
+.ra-card-floor {
+  position: absolute;
+  inset: 0;
+}
+
+/* heat burning brightest behind the head */
+.ra-card-bg {
+  background:
+    radial-gradient(48cqh 40cqh at var(--ra-ray), rgba(255, 240, 205, 0.62), transparent 72%),
+    radial-gradient(150cqw 130cqh at var(--ra-ray), var(--heat-hot) 0%, var(--heat) 40%, var(--heat-deep) 84%);
+}
+
+/* the sunburst: rays fanning from behind the head */
+.ra-card-rays {
+  background: repeating-conic-gradient(from 3deg at var(--ra-ray), rgba(255, 236, 200, 0.26) 0 5deg, transparent 5deg 14deg);
+  -webkit-mask-image: radial-gradient(120cqh 120cqh at var(--ra-ray), #000 18%, transparent 78%);
+  mask-image: radial-gradient(120cqh 120cqh at var(--ra-ray), #000 18%, transparent 78%);
+}
+
+.ra-card-dots {
+  background: radial-gradient(circle, rgba(var(--lo), 0.25) 0 0.5cqh, transparent 0.72cqh) 0 0 / 2.57cqh 2.57cqh;
+  -webkit-mask-image: linear-gradient(24deg, #000 0%, transparent 62%);
+  mask-image: linear-gradient(24deg, #000 0%, transparent 62%);
+}
+
+/* the ground under the name plate, under the figure */
+.ra-card-floor {
+  background: linear-gradient(12deg, rgba(0, 0, 0, 0.42) 0%, rgba(0, 0, 0, 0.12) 26%, transparent 46%);
+}
+
+/* three speed streaks behind the figure */
+.ra-card-streak {
+  position: absolute;
+  height: 1cqh;
+  border-radius: 99px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.72) 72%, #fff);
+  transform: rotate(-21deg);
+  transform-origin: 0 50%;
+}
+
+.ra-card-streak.is-a { left: 3%; top: 66%; width: 54cqw; }
+.ra-card-streak.is-b { left: 18%; top: 84%; width: 38cqw; height: 0.6cqh; opacity: 0.75; }
+.ra-card-streak.is-c { left: 52%; top: 96%; width: 48cqw; height: 1.7cqh; opacity: 0.4; }
+
+/* the painting, and its cut-out shadow on the scene (a mask of its own alpha, never a filter) */
+.ra-paint,
+.ra-paint-cast {
+  position: absolute;
+  left: var(--ra-px);
+  top: var(--ra-py);
+  height: var(--ra-ph);
+  width: calc(var(--ra-ph) * 720 / 1040);
+  max-width: none;
+}
+
+.ra-paint-cast {
+  background: rgba(40, 10, 0, 0.42);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  transform: translate(-2.6cqh, 1.4cqh);
+}
+
+/* the name: a black plate leaning off the lower left, a heat brush stroke behind it */
+.ra-plate {
+  position: absolute;
+  left: -2.4cqw;
+  bottom: 8.6cqh;
+  max-width: 66cqw;
+  padding: 2cqh 5.4cqw 2.4cqh 6.6cqw;
+  border-radius: 1.2cqh;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0 0.45cqh, transparent 0.45cqh),
+    linear-gradient(180deg, #232327, #000 62%);
+  box-shadow: 1cqh 1.5cqh 0 rgba(0, 0, 0, 0.35);
+  transform: skewX(-12deg);
+}
+
+.ra-plate-brush {
+  position: absolute;
+  z-index: -1;
+  left: 34%;
+  right: -16%;
+  top: 46%;
+  height: 80%;
+  background: var(--heat-hot);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 60' preserveAspectRatio='none'%3E%3Cpath d='M22 14C120 6 280 6 380 14 368 28 374 40 388 48 280 56 110 56 16 48 30 36 10 24 22 14Z'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 60' preserveAspectRatio='none'%3E%3Cpath d='M22 14C120 6 280 6 380 14 368 28 374 40 388 48 280 56 110 56 16 48 30 36 10 24 22 14Z'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+}
+
+.ra-name {
+  position: relative;
+  display: block;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 900;
+  font-size: 9.71cqh;
+  line-height: 0.95;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #fff;
+  /* the plate leans; the name keeps its own italic */
+  transform: skewX(12deg);
+}
+
+.ra-serial {
+  position: absolute;
+  left: 3.8cqh;
+  top: 3.4cqh;
+  font-family: 'Rw Display', var(--font-display);
+  font-weight: 700;
+  font-size: 4cqh;
+  line-height: 1;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.86);
+  text-shadow: 0 0.3cqh 0 rgba(0, 0, 0, 0.3);
+}
+
+.ra-gem-chip {
+  position: absolute;
+  right: 3cqh;
+  top: 2.6cqh;
+  width: 6.3cqh;
+  height: 6.3cqh;
+}
+
+.ra-gem-chip svg { display: block; width: 100%; height: 100%; }
+.ra-gem.is-rare { fill: var(--silver-2); }
+.ra-gem.is-epic { fill: var(--heat-hot); }
+
+/* the map's block: no serial, a name that still reads at 115 u */
+.is-block .ra-name { font-size: 14cqh; }
+.is-block .ra-plate { bottom: 7cqh; padding: 2.4cqh 5cqw 2.8cqh 7cqw; }
+
+/*
+  ── foil shine (played by an ancestor's .is-shining) and the arrival's over-exposure ──
+  As the reference sweeps it (v_114–v_118): one wide warm band crosses the face from the lower
+  left to the upper right, a dark stripe trailing it, the clean picture back behind. Overlays
+  above the paint, never on it. Each blending layer animates by itself: a container with opacity
+  or a transform would isolate the screen blend from the painting under it.
+*/
+.ra-shine {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.ra-flash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: #fff;
+  mix-blend-mode: screen;
+}
+
+/* the run: a face-wide strip of 60° bands — dark 12% · white to heat 35% · cream wash 45% */
+.ra-shine-run {
+  position: absolute;
+  left: 0;
+  top: -20%;
+  bottom: -20%;
+  width: 100%;
+  transform: translateX(-150%);
+}
+
+.ra-shine-run.is-lit { mix-blend-mode: screen; }
+
+.ra-shine-dark,
+.ra-shine-band,
+.ra-shine-wash {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  transform: skewX(30deg);
+}
+
+.ra-shine-dark {
+  left: 0;
+  width: 12%;
+  background: rgba(var(--lo), 0.25);
+}
+
+.ra-shine-band {
+  left: 12%;
+  width: 35%;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--heat-hot) 30%, transparent), rgba(255, 255, 255, 0.55));
+}
+
+.ra-shine-wash {
+  left: 47%;
+  width: 45%;
+  background: linear-gradient(90deg, rgba(255, 228, 165, 0.58) 0 82%, rgba(255, 228, 165, 0));
+}
+
+.is-shining .ra-shine-run { animation: ra-shine-run 233ms step-end both; }
+
+/* frame by frame: the wash enters the lower-left corner at frame 2, the dark stripe at 3, gone at 7 */
+@keyframes ra-shine-run {
+  0% { transform: translateX(-150%); }
+  28.6% { transform: translateX(-70%); }
+  42.9% { transform: translateX(-20%); }
+  57.1% { transform: translateX(30%); }
+  71.4% { transform: translateX(65%); }
+  85.7% { transform: translateX(95%); }
+  100% { transform: translateX(150%); }
+}
+
+/* ── the thumbnail card: small, tilted, the 192 px face at 70 u or less ── */
+.reward-art.is-card.is-thumb { container-type: size; }
+
+.ra-mini {
+  position: absolute;
+  left: 9%;
+  top: 19%;
+  width: 82%;
+  height: 62%;
+  border-radius: 2.6cqh;
+  background: var(--white);
+  box-shadow: 0 2.6cqh 5cqh rgba(0, 0, 0, 0.45);
+  transform: rotate(-8deg) skewX(-5deg);
+}
+
+:where(:root[data-theme='light']) .ra-mini { box-shadow: 0 2.4cqh 4.6cqh rgba(var(--shade), 0.3); }
+
+.ra-mini-face {
+  --ra-ray: 58% 24%;
+  position: absolute;
+  inset: 3.2cqh;
+  overflow: hidden;
+  border-radius: 1.4cqh;
+  background: var(--heat-deep);
+}
+
+.ra-mini-face > .ra-card-bg,
+.ra-mini-face > .ra-card-rays { inset: 0; }
+
+.ra-mini-face > .ra-card-rays {
+  -webkit-mask-image: radial-gradient(70cqh 70cqh at var(--ra-ray), #000 10%, transparent 80%);
+  mask-image: radial-gradient(70cqh 70cqh at var(--ra-ray), #000 10%, transparent 80%);
+}
+
+.ra-mini-paint {
+  position: absolute;
+  left: 30%;
+  top: -10%;
+  height: 128%;
+  width: auto;
+  max-width: none;
+}
+
+.ra-mini-gloss {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.34) 0 22%, transparent 22.5%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ra-shine { display: none; }
+}

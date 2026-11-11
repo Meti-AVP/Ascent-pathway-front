@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Hero still</title>
+    <!--
+      Renders one avatar from HOME's painterly rig (src/stage/HeroStage.ts) on a transparent
+      canvas, framed for the PATHWAYS hero, so the page can show a sharp still instead of an
+      upscaled painting. Driven by tools/hero/hero.ts; see the query parameters there.
+    -->
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: transparent;
+        overflow: hidden;
+      }
+      canvas {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="stage"></canvas>
+    <script type="module" src="./hero.ts"></script>
+  </body>
+</html>

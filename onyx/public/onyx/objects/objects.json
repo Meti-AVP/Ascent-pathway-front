@@ -1,0 +1,155 @@
+{
+ "_note": "Onyx stage objects, pre-rendered in Blender (tools/onyx/objects). Each key: files relative to its folder; anchor = the image point that stands on the pedestal top centre (same for every file); fit = image width as a fraction of the pedestal-top width (2*rx); learner_spin = one eased sweep -28 to +28 deg yaw with a 2 % hover, made to be played forward and back (ping-pong), row-major.",
+ "learn": {
+  "files": {
+   "learner_lit": "learner_lit.webp",
+   "learner_done": "learner_done.webp",
+   "learner_stone": "learner_stone.webp",
+   "learner_spin": "learner_spin.webp",
+   "admin_lit": "admin_lit.webp"
+  },
+  "anchor": [
+   0.5,
+   0.78
+  ],
+  "fit": 1.5,
+  "grid": {
+   "cols": 8,
+   "rows": 5,
+   "frames": 40
+  }
+ },
+ "assess": {
+  "files": {
+   "learner_lit": "learner_lit.webp",
+   "learner_done": "learner_done.webp",
+   "learner_stone": "learner_stone.webp",
+   "learner_spin": "learner_spin.webp",
+   "admin_lit": "admin_lit.webp"
+  },
+  "anchor": [
+   0.5,
+   0.78
+  ],
+  "fit": 1.5,
+  "grid": {
+   "cols": 8,
+   "rows": 5,
+   "frames": 40
+  }
+ },
+ "compete": {
+  "files": {
+   "learner_lit": "learner_lit.webp",
+   "learner_done": "learner_done.webp",
+   "learner_stone": "learner_stone.webp",
+   "learner_spin": "learner_spin.webp",
+   "admin_lit": "admin_lit.webp"
+  },
+  "anchor": [
+   0.5,
+   0.78
+  ],
+  "fit": 1.5,
+  "grid": {
+   "cols": 8,
+   "rows": 5,
+   "frames": 40
+  }
+ },
+ "prove": {
+  "files": {
+   "learner_lit": "learner_lit.webp",
+   "learner_done": "learner_done.webp",
+   "learner_stone": "learner_stone.webp",
+   "learner_spin": "learner_spin.webp",
+   "admin_lit": "admin_lit.webp"
+  },
+  "anchor": [
+   0.5,
+   0.78
+  ],
+  "fit": 1.5,
+  "grid": {
+   "cols": 8,
+   "rows": 5,
+   "frames": 40
+  }
+ },
+ "branch": {
+  "files": {
+   "learner_lit": "learner_lit.webp",
+   "learner_done": "learner_done.webp",
+   "learner_stone": "learner_stone.webp",
+   "learner_spin": "learner_spin.webp",
+   "admin_lit": "admin_lit.webp"
+  },
+  "anchor": [
+   0.5,
+   0.78
+  ],
+  "fit": 1.5,
+  "grid": {
+   "cols": 8,
+   "rows": 5,
+   "frames": 40
+  }
+ },
+ "reward": {
+  "files": {
+   "learner_lit": "learner_lit.webp",
+   "learner_done": "learner_done.webp",
+   "learner_stone": "learner_stone.webp",
+   "learner_spin": "learner_spin.webp",
+   "admin_lit": "admin_lit.webp"
+  },
+  "anchor": [
+   0.5,
+   0.78
+  ],
+  "fit": 1.5,
+  "grid": {
+   "cols": 8,
+   "rows": 5,
+   "frames": 40
+  }
+ },
+ "tournament": {
+  "files": {
+   "learner_lit": "learner_lit.webp",
+   "learner_done": "learner_done.webp",
+   "learner_stone": "learner_stone.webp",
+   "learner_spin": "learner_spin.webp",
+   "admin_lit": "admin_lit.webp"
+  },
+  "anchor": [
+   0.5,
+   0.78
+  ],
+  "fit": 1.5,
+  "grid": {
+   "cols": 8,
+   "rows": 5,
+   "frames": 40
+  }
+ },
+ "live": {
+  "files": {
+   "learner_lit": "learner_lit.webp",
+   "learner_done": "learner_done.webp",
+   "learner_stone": "learner_stone.webp",
+   "learner_spin": "learner_spin.webp",
+   "admin_lit": "admin_lit.webp"
+  },
+  "anchor": [
+   0.5,
+   0.78
+  ],
+  "fit": 1.5,
+  "grid": {
+   "cols": 8,
+   "rows": 5,
+   "frames": 40
+  }
+ }
+}

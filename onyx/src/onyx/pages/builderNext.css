@@ -136,3 +136,9 @@
 @media (prefers-reduced-motion: reduce) {
   .bn-dragging .bn-slot.is-target .bn-slot__ring { animation: none; }
 }
+
+/* realistic objects: the dock gives them a pedestal-sized box to stand in; no tile, no square outlines */
+.bn-item { --obj: 37px; } /* the object's size in the dock: StageObject derives --rx from --obj */
+.bn-item .bn-obj.has-3d { overflow: visible; }
+.bn-item:hover .bn-obj.has-3d { box-shadow: none; filter: drop-shadow(0 0 14px rgba(238, 106, 44, 0.45)); }
+.bn-stage.is-branch .bn-obj.has-3d { outline: none; }

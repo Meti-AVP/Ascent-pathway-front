@@ -1,0 +1,141 @@
+/* ── Learner journey: the path, in 2.5D ───────────────────────────────────── */
+.journey { position: fixed; inset: 0; min-height: 0; padding: 0; overflow: hidden; background: #050506; }
+.jshade { position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    radial-gradient(ellipse 36% 58% at 0% 24%, rgba(4, 4, 5, 0.74) 0%, rgba(4, 4, 5, 0.4) 50%, rgba(4, 4, 5, 0) 100%),
+    linear-gradient(180deg, rgba(4, 4, 5, 0.6) 0%, rgba(4, 4, 5, 0) 16%, rgba(4, 4, 5, 0) 84%, rgba(4, 4, 5, 0.5) 100%); }
+.journey .s25 { z-index: 0; }
+
+/* stage emblems: a thick medallion standing on the centre of each pedestal, its light on the stone,
+   one line of name below the rim. Sizes follow the pedestal (--rx / --ry, set every frame). */
+.c25 { position: absolute; left: 0; top: 0; width: 0; height: 0; will-change: transform;
+  --d: clamp(34px, calc(var(--rx, 60px) * 0.6), 74px);
+  --face: radial-gradient(circle at 34% 26%, #4a4c53 0%, #222328 48%, #0e0e11 100%);
+  --edge: linear-gradient(90deg, #6a6c73 0%, #2a2b30 38%, #121215 62%, #4a4c53 100%);
+  --rim: rgba(211, 214, 220, 0.42);
+  --ink: rgba(222, 224, 229, 0.74);
+  --pool: rgba(211, 214, 220, 0.16);
+}
+.c25__in { position: absolute; left: 0; top: 0; }
+
+/* the emblem's light, lying on the pedestal top */
+.c25__pool { position: absolute; left: calc(var(--rx) * -0.94); top: calc(var(--ry) * -0.94); width: calc(var(--rx) * 1.88); height: calc(var(--ry) * 1.88);
+  border-radius: 50%; pointer-events: none; mix-blend-mode: screen;
+  background: radial-gradient(closest-side, var(--pool) 0%, color-mix(in srgb, var(--pool) 45%, transparent) 46%, transparent 100%);
+  transition: opacity 0.5s var(--ease); }
+.c25__pool::after { content: ''; position: absolute; inset: 0; border-radius: 50%; opacity: 0; box-shadow: inset 0 0 0 1.5px rgba(255, 214, 120, 0.9), 0 0 18px rgba(255, 186, 48, 0.45); transition: opacity 0.4s var(--ease); }
+
+/* the hit area: the pedestal top and the emblem on it; the name below hangs from it */
+.c25__btn { position: absolute; left: calc(var(--rx) * -0.92); width: calc(var(--rx) * 1.84); top: calc(-1 * (var(--d) + 10px)); bottom: calc(var(--ry) * -1);
+  padding: 0; border: 0; border-radius: 42%; background: none; cursor: pointer; color: var(--tx-1); pointer-events: auto; -webkit-tap-highlight-color: transparent; }
+.c25__btn:focus-visible { outline: none; }
+.c25__btn:focus-visible .c25__face { outline: 2px solid #fff; outline-offset: 4px; }
+
+/* the medallion: a face over stacked slices, swaying slowly so its thickness shows */
+.c25__coin { position: absolute; left: 50%; bottom: var(--ry); width: var(--d); height: var(--d); margin-left: calc(var(--d) * -0.5);
+  perspective: 460px; transform-origin: 50% 100%; transition: transform 0.5s var(--ease); }
+.c25__coin::after { content: ''; position: absolute; left: 6%; right: 6%; bottom: calc(var(--d) * -0.07); height: calc(var(--d) * 0.16); border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0)); z-index: -1; }
+.c25__spin { position: absolute; inset: 0; transform-style: preserve-3d; transform: rotateX(var(--tilt, 8deg)) rotateY(-14deg);
+  animation: c25-sway 9s ease-in-out infinite; animation-delay: calc(var(--n, 0) * -1.3s); }
+@keyframes c25-sway {
+  0%, 100% { transform: rotateX(var(--tilt, 8deg)) rotateY(-18deg); }
+  50% { transform: rotateX(var(--tilt, 8deg)) rotateY(18deg); }
+}
+.c25__edge { position: absolute; inset: 0; border-radius: 50%; background: var(--edge); transform: translateZ(calc(var(--k) * var(--d) * -0.026)); }
+.c25__face { position: absolute; inset: 0; display: grid; place-items: center; border-radius: 50%; transform: translateZ(0.5px); color: var(--ink); background: var(--face);
+  box-shadow: inset 0 0 0 1.5px var(--rim), inset 0 calc(var(--d) * 0.05) calc(var(--d) * 0.08) rgba(255, 255, 255, 0.22), inset 0 calc(var(--d) * -0.1) calc(var(--d) * 0.16) rgba(0, 0, 0, 0.45); }
+.c25__face::before { content: ''; position: absolute; inset: 13%; border-radius: 50%; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), inset 0 -1px 0 rgba(0, 0, 0, 0.35); }
+.c25__face svg { position: relative; width: 44%; height: 44%; filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.45)) drop-shadow(0 -0.5px 0 rgba(255, 255, 255, 0.25)); }
+
+/* one line of name, on the pedestal's face below the rim */
+.c25__name { position: absolute; left: 50%; top: calc(100% + 8px); transform: translateX(-50%); white-space: nowrap; padding: 4px 11px; border-radius: 99px;
+  font-size: 13px; font-weight: 650; letter-spacing: -0.005em; color: var(--tx-1); background: rgba(8, 8, 10, 0.6);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); transition: color 0.4s, background 0.4s; }
+.c25__here { display: inline-flex; align-items: center; gap: 4px; margin: -1px 8px -1px -6px; padding: 2px 8px 2px 6px; border-radius: 99px; font-size: 12px; font-weight: 700;
+  vertical-align: 1px; color: #1d1505; background: linear-gradient(180deg, #ffe596, #f5b52a); }
+.c25__here svg { width: 12px; height: 12px; }
+
+/* states: done green, yours gold, locked dark stone, the side path silver */
+.c25--done { --face: radial-gradient(circle at 34% 26%, #3d5a4b 0%, #1a2b23 50%, #0b120f 100%); --edge: linear-gradient(90deg, #4f8a6c 0%, #1f3a2d 40%, #0d1813 62%, #3c6b54 100%);
+  --rim: rgba(70, 211, 139, 0.8); --ink: #9df5c6; --pool: rgba(70, 211, 139, 0.3); }
+.c25--current { --d: clamp(40px, calc(var(--rx, 60px) * 0.7), 84px);
+  --face: radial-gradient(circle at 34% 24%, #fff4c9 0%, #ffd463 30%, #f2a51c 62%, #b5600e 100%); --edge: linear-gradient(90deg, #f2b04a 0%, #b4650f 40%, #5e2c06 64%, #d58a22 100%);
+  --rim: rgba(255, 244, 201, 0.9); --ink: #2a1503; --pool: rgba(255, 168, 60, 0.6); }
+.c25--current .c25__coin { filter: drop-shadow(0 0 14px rgba(255, 186, 48, 0.55)) drop-shadow(0 0 34px rgba(238, 106, 44, 0.35)); }
+.c25--current .c25__pool::before { content: ''; position: absolute; inset: 0; border-radius: 50%; box-shadow: inset 0 0 0 2px rgba(255, 201, 63, 0.7); animation: c25-ring 2.8s ease-out infinite; }
+@keyframes c25-ring { 0% { transform: scale(0.45); opacity: 0.95; } 100% { transform: scale(1.06); opacity: 0; } }
+.c25--current .c25__name { color: #ffe3a0; }
+.c25--locked { --ink: rgba(236, 196, 189, 0.78); }
+.c25--locked .c25__name { color: var(--tx-2); }
+.c25--optional { --rim: rgba(211, 214, 220, 0.6); --ink: var(--silver); --pool: rgba(211, 214, 220, 0.18); }
+.c25--optional .c25__pool { outline: 1.5px dashed rgba(211, 214, 220, 0.45); outline-offset: -3px; }
+
+/* hover lifts the emblem; the chosen stage gets a gold ring on its stone */
+.c25__btn:hover .c25__coin { transform: translateY(-5px); }
+.c25__btn:hover .c25__name { color: #fff; background: rgba(8, 8, 10, 0.78); }
+.c25.is-sel .c25__coin { transform: translateY(-4px) scale(1.08); }
+.c25.is-sel .c25__pool::after { opacity: 1; }
+.c25.is-sel .c25__name { color: #fff; background: rgba(20, 16, 8, 0.82); box-shadow: inset 0 0 0 1px rgba(255, 201, 63, 0.55); }
+@media (prefers-reduced-motion: reduce) {
+  .c25__spin { animation: none; }
+  .c25--current .c25__pool::before { animation: none; opacity: 0; }
+}
+.jbranch { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.jbranch path { fill: none; stroke: rgba(211, 214, 220, 0.55); stroke-width: 2; stroke-dasharray: 5 7; }
+
+/* top-left: where I am, and the pathway cards */
+.jhead { position: absolute; z-index: 5; left: var(--gutter); top: 100px; width: min(330px, 30vw); }
+.jhead__title { margin-top: 10px; font: 600 clamp(34px, 3vw, 48px)/1.0 var(--f-display); letter-spacing: -0.035em; color: #fbf6ef; }
+.jhead__prog { display: flex; align-items: center; gap: 12px; margin-top: 14px; font-size: 14.5px; font-weight: 600; color: var(--tx-2); white-space: nowrap; }
+.jhead__prog .segs .seg { width: 14px; }
+.jhead__prog .segs .seg--current { width: 22px; }
+.jpaths { display: grid; gap: 6px; margin-top: 22px; }
+.jpaths__label { font-size: 13px; font-weight: 650; color: var(--tx-3); margin-bottom: 2px; }
+.jpath { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 11px 14px; border: 0; border-radius: 18px; cursor: pointer; text-align: left; color: inherit; transition: transform 0.45s var(--ease), box-shadow 0.5s var(--ease), background 0.4s; }
+.jpath:hover { transform: translateX(3px); }
+.jpath__top { display: flex; align-items: center; gap: 8px; }
+.jpath__name { font-size: 15px; font-weight: 650; }
+.jpath__meta { font-size: 13px; font-weight: 600; color: var(--tx-2); white-space: nowrap; }
+.jpath .segs .seg { width: 12px; height: 5px; }
+.jpath .segs .seg--current { width: 18px; }
+.jpath[aria-pressed='true'] { background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05)), rgba(13, 14, 17, 0.5); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 22px 46px -22px rgba(238, 106, 44, 0.6); }
+.jpath[aria-pressed='true'] .jpath__name { color: #fff; }
+.jpath__on { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 650; color: #ffd772; }
+
+/* the stage panel */
+.stagep { position: absolute; z-index: 6; right: var(--gutter); top: 96px; max-height: calc(100vh - 124px); width: clamp(360px, 27vw, 430px); display: flex; flex-direction: column; overflow: hidden; }
+.stagep__scroll { flex: 1; min-height: 0; overflow: auto; padding: 22px 24px 8px; display: grid; gap: 16px; align-content: start; }
+.stagep__top { display: flex; align-items: center; gap: 10px; }
+.stagep__pos { font-size: 14px; font-weight: 650; color: var(--tx-2); }
+.stagep__nav { margin-left: auto; display: inline-flex; gap: 6px; }
+.stagep__title { font: 600 30px/1.08 var(--f-display); letter-spacing: -0.035em; color: #fbf6ef; margin-top: -4px; }
+.stagep__type { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 14.5px; font-weight: 600; color: var(--tx-2); margin-top: -6px; }
+.stagep__type svg { color: var(--silver); flex: none; }
+.stagep__asks { font-size: 16px; line-height: 1.55; color: var(--tx-1); }
+.stagep__gate { display: grid; grid-template-columns: 34px 1fr; gap: 12px; padding: 14px 16px; border-radius: 18px; background: rgba(255, 255, 255, 0.05); }
+.stagep__gate-icon { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 11px; color: var(--sun); background: rgba(255, 201, 63, 0.12); }
+.stagep__gate.is-locked .stagep__gate-icon { color: #ff9d92; background: rgba(255, 93, 79, 0.13); }
+.stagep__gate.is-done .stagep__gate-icon { color: var(--go); background: rgba(70, 211, 139, 0.13); }
+.stagep__gate.is-optional .stagep__gate-icon { color: var(--silver); background: rgba(211, 214, 220, 0.1); }
+.stagep__gate h3 { font-size: 13px; font-weight: 650; color: var(--tx-3); margin-bottom: 3px; }
+.stagep__gate p { font-size: 15px; line-height: 1.45; }
+.stagep__gate p + p { margin-top: 6px; font-size: 14px; color: var(--tx-2); }
+.stagep__rewards { display: flex; flex-wrap: wrap; gap: 6px; }
+.stagep__sec-title { font-size: 13px; font-weight: 650; color: var(--tx-3); margin-bottom: 8px; }
+.stagep details summary { list-style: none; cursor: pointer; font-size: 14px; font-weight: 650; color: var(--tx-2); display: inline-flex; align-items: center; gap: 8px; }
+.stagep details summary::-webkit-details-marker { display: none; }
+.stagep details summary::before { content: ''; width: 6px; height: 6px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); transition: transform 0.3s var(--ease); }
+.stagep details[open] summary::before { transform: rotate(45deg); }
+.facts { display: grid; gap: 6px; margin-top: 10px; }
+.facts div { display: flex; justify-content: space-between; gap: 10px; padding: 9px 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.04); font-size: 14px; }
+.facts dt { color: var(--tx-2); }
+.facts dd { margin: 0; font-weight: 650; }
+.stagep__cta { position: relative; display: flex; flex-wrap: wrap; gap: 10px; padding: 16px 24px 20px; }
+.stagep__cta::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent); }
+.stagep__cta .btn--primary { flex: 1; }
+
+.jhint { position: absolute; z-index: 5; right: var(--gutter); bottom: 26px; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--tx-3); white-space: nowrap; }
+.jhint kbd { display: inline-grid; place-items: center; min-width: 24px; height: 22px; padding: 0 6px; border-radius: 6px; font: 600 12px/1 var(--f-ui); color: var(--tx-2); background: rgba(255, 255, 255, 0.08); }
+.jload { position: absolute; z-index: 8; left: 50%; top: 50%; transform: translate(-50%, -50%); display: grid; justify-items: center; gap: 10px; padding: 24px 28px; text-align: center; }
+.jload__title { font: 600 18px/1.2 var(--f-display); letter-spacing: -0.02em; }

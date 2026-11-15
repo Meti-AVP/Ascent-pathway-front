@@ -1,0 +1,148 @@
+/* ── Learner home ─────────────────────────────────────────────────────────── */
+@property --sweep { syntax: '<percentage>'; inherits: false; initial-value: -60%; }
+
+.home { padding: 0; }
+.hero { position: relative; height: 100vh; min-height: 760px; overflow: hidden; }
+.hero__scene { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.hero__scene [data-depth] { will-change: transform; }
+
+/* the far light: a warm horizon where the path leads, under a cool high sky */
+.hero__sky {
+  position: absolute; inset: -6%;
+  background:
+    radial-gradient(36% 14% at 62% 71%, rgba(255, 196, 150, 0.12), transparent 70%),
+    radial-gradient(60% 30% at 58% 72%, rgba(238, 106, 44, 0.07), transparent 72%),
+    radial-gradient(55% 55% at 28% 4%, rgba(255, 222, 192, 0.10), transparent 70%),
+    radial-gradient(40% 50% at 92% 18%, rgba(196, 208, 230, 0.05), transparent 70%),
+    linear-gradient(180deg, #07080a 0%, #08090b 56%, #050506 100%);
+}
+.hero__sky::after { /* the horizon line itself, very soft */
+  content: ''; position: absolute; left: 18%; right: 8%; top: 71%; height: 2px; border-radius: 2px;
+  background: linear-gradient(90deg, transparent 0%, transparent 24%, rgba(255, 190, 140, 0.32) 46%, rgba(255, 220, 190, 0.55) 62%, rgba(255, 190, 140, 0.2) 80%, transparent);
+  filter: blur(1.5px);
+  box-shadow: 0 0 40px 12px rgba(238, 106, 44, 0.10);
+}
+.hero__rays { position: absolute; left: 6%; top: -34%; width: 64%; height: 150%; opacity: 0; }
+.hero__rays span {
+  position: absolute; top: 0; left: 46%; height: 100%; transform-origin: 50% 0;
+  background: linear-gradient(180deg, rgba(255, 224, 196, 0.10), rgba(255, 206, 166, 0.04) 46%, transparent 80%);
+  filter: blur(22px); border-radius: 50%;
+}
+.hero__rays span:nth-child(1) { width: 240px; transform: rotate(16deg); }
+.hero__rays span:nth-child(2) { width: 130px; transform: rotate(31deg); opacity: 0.75; }
+.hero__rays span:nth-child(3) { width: 90px; transform: rotate(3deg); opacity: 0.55; }
+.hero__dust { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+.hero__ember {
+  position: absolute; left: 50%; top: 4%; width: 52vw; height: 96vh;
+  background: radial-gradient(closest-side, rgba(238, 106, 44, 0.20), rgba(207, 82, 32, 0.08) 52%, transparent 100%);
+}
+.hero__char-wrap { position: absolute; inset: 0; }
+.hero__stand { position: absolute; left: 50%; right: 2vw; top: 9vh; bottom: 0; }
+.hero__char {
+  position: absolute; left: 50%; top: 2.5vh; height: 162vh; aspect-ratio: 525 / 1671; margin-left: -25.45vh;
+  transform-origin: 50% 20%;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 37%, transparent 53%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 37%, transparent 53%);
+}
+.hero__char img { width: 100%; height: 100%; filter: drop-shadow(0 0 40px rgba(238, 106, 44, 0.18)); }
+.hero__sweep {
+  position: absolute; inset: 0; pointer-events: none; mix-blend-mode: screen;
+  -webkit-mask-image: url(/onyx/img/ahmed-up.webp); mask-image: url(/onyx/img/ahmed-up.webp);
+  -webkit-mask-size: 100% 100%; mask-size: 100% 100%;
+  background: linear-gradient(104deg, transparent calc(var(--sweep) - 14%), rgba(255, 196, 150, 0.5) var(--sweep), transparent calc(var(--sweep) + 14%));
+}
+.hero__floor { position: absolute; left: 0; right: 0; bottom: 0; height: 42vh; background: linear-gradient(180deg, rgba(6, 7, 9, 0) 0%, rgba(6, 7, 9, 0.78) 55%, #060709 100%); }
+.hero__dark { position: absolute; inset: 0; background: #030304; opacity: 0; }
+
+.hero__copy { position: relative; z-index: 2; max-width: 660px; margin-left: var(--gutter); padding-top: clamp(150px, 22vh, 236px); }
+.hero__eyebrow { margin-bottom: 20px; }
+.hero__title {
+  font-size: clamp(58px, 5.5vw, 96px); max-width: 9.5ch; text-wrap: balance; opacity: 0; padding-bottom: 0.06em;
+  color: #fbf6ef;
+}
+.hero__meta { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+.hero__where { font-size: 15.5px; font-weight: 550; color: var(--tx-2); display: inline-flex; align-items: center; gap: 10px; }
+.sep { width: 4px; height: 4px; border-radius: 50%; background: rgba(255, 255, 255, 0.35); display: inline-block; }
+.hero__lede { margin-top: 16px; font-size: 17.5px; line-height: 1.55; color: var(--tx-2); max-width: 520px; }
+.hero__actions { display: flex; gap: 14px; margin-top: 30px; }
+.hero__more { display: flex; align-items: center; gap: 14px; margin-top: 30px; }
+.hero__done { font-size: 14px; font-weight: 600; color: var(--tx-2); }
+.hero__more .link { margin-left: 8px; }
+
+.readouts {
+  position: absolute; z-index: 3; left: var(--gutter); bottom: clamp(36px, 6vh, 64px);
+  display: grid; grid-template-columns: repeat(3, auto); gap: 0; padding: 20px 8px; border-radius: 26px;
+}
+.ro { display: grid; gap: 7px; padding: 0 30px; position: relative; }
+.ro + .ro::before { content: ''; position: absolute; left: 0; top: 12%; bottom: 12%; width: 1px; background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.12), transparent); }
+.ro__v { display: flex; align-items: center; gap: 10px; font: 600 30px/1 var(--f-display); letter-spacing: -0.03em; }
+.ro__unit { font: 600 15px/1 var(--f-ui); letter-spacing: 0; color: var(--tx-2); align-self: flex-end; margin-bottom: 3px; }
+.ro__flame { width: 26px; height: 26px; color: var(--ember); filter: drop-shadow(0 0 10px rgba(238, 106, 44, 0.6)); }
+.ro__xp { width: 120px; margin-left: 4px; }
+.ro__sub { font-size: 13.5px; color: var(--tx-2); }
+
+.scroll-cue {
+  position: absolute; z-index: 3; right: var(--gutter); bottom: clamp(44px, 7vh, 72px);
+  display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--tx-2);
+  padding: 10px 14px; border-radius: 99px; transition: color 0.3s, background 0.3s;
+}
+.scroll-cue:hover { color: var(--tx-1); background: rgba(255, 255, 255, 0.06); }
+.scroll-cue svg { animation: cue 2.4s var(--ease) infinite; }
+@keyframes cue { 0%, 100% { transform: translateY(-2px); } 50% { transform: translateY(3px); } }
+
+/* ── This week ── */
+.week { position: relative; z-index: 2; padding: 56px var(--gutter) 110px; }
+.week__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 28px; }
+.week__title { margin-top: 10px; font: 600 34px/1.1 var(--f-display); letter-spacing: -0.03em; }
+.wallet { display: flex; gap: 10px; }
+.wallet__item { display: inline-flex; align-items: center; gap: 8px; height: 42px; padding: 0 16px; border-radius: 99px; background: rgba(255, 255, 255, 0.05); font-size: 14.5px; color: var(--tx-2); }
+.wallet__item strong { color: var(--tx-1); font-weight: 650; }
+.wallet__item svg { color: var(--silver); }
+.week__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+.card { padding: 24px 24px 26px; display: flex; flex-direction: column; gap: 18px; min-height: 320px; }
+.card__title { font: 650 18px/1.2 var(--f-ui); letter-spacing: -0.01em; }
+.card__note { font-size: 14.5px; color: var(--tx-2); }
+.card .btn { align-self: flex-start; margin-top: auto; }
+
+.quests { display: grid; gap: 20px; }
+.quests li { display: grid; gap: 8px; }
+.quests__row { display: flex; justify-content: space-between; font-size: 15px; font-weight: 550; }
+.quests__row .num { color: var(--tx-2); font-weight: 500; }
+.quests__row strong { color: var(--tx-1); }
+.quests__reset { font-size: 13px; color: var(--tx-3); }
+
+.rival { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; padding: 6px 0; }
+.rival__side { display: grid; justify-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--tx-2); }
+.rival__mono { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; font: 600 17px/1 var(--f-display); color: var(--silver-2); background: radial-gradient(120% 120% at 30% 20%, #24262c, #0d0e11 70%); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18); }
+.rival__score { display: flex; align-items: baseline; gap: 6px; font: 600 44px/1 var(--f-display); letter-spacing: -0.04em; color: var(--tx-2); }
+.rival__score .is-lead { color: var(--tx-1); text-shadow: 0 0 24px rgba(255, 201, 63, 0.35); }
+.rival__dash { color: var(--tx-3); font-size: 30px; }
+
+.squad__place { font-size: 15px; color: var(--tx-2); }
+.squad__place .num { font: 600 32px/1 var(--f-display); letter-spacing: -0.03em; color: var(--tx-1); margin-right: 6px; }
+.squad { display: grid; gap: 4px; }
+.squad li { display: grid; grid-template-columns: 26px 1fr auto; align-items: center; height: 40px; padding: 0 12px; border-radius: 12px; font-size: 14.5px; color: var(--tx-2); }
+.squad li.is-me { color: var(--tx-1); background: linear-gradient(90deg, rgba(255, 201, 63, 0.14), rgba(255, 201, 63, 0.03)); font-weight: 650; }
+.squad__rank { color: var(--tx-3); font-weight: 650; }
+.squad li.is-me .squad__rank { color: var(--sun); }
+
+.badges { display: grid; gap: 14px; }
+.badges li { display: grid; grid-template-columns: 38px 1fr; grid-template-rows: auto auto; column-gap: 12px; row-gap: 4px; align-items: center; }
+.badge-glyph { grid-row: span 2; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; color: var(--silver); background: rgba(255, 255, 255, 0.06); }
+.badge-glyph.is-high { color: #ffb289; background: rgba(238, 106, 44, 0.14); box-shadow: 0 0 18px rgba(238, 106, 44, 0.2); }
+.badges__text { display: grid; gap: 1px; min-width: 0; }
+.badges__text strong { font-size: 14.5px; font-weight: 650; }
+.badges__text span { font-size: 13px; color: var(--tx-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rarity { grid-column: 2; display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 600; color: var(--tx-2); }
+.rarity__pips { display: inline-flex; gap: 3px; }
+.rarity__pips i { width: 10px; height: 4px; border-radius: 3px; background: rgba(255, 255, 255, 0.14); }
+.rarity__pips i.on { background: var(--silver); }
+.badges li:has(.is-high) .rarity__pips i.on { background: var(--ember); }
+
+.week__foot { display: flex; align-items: center; gap: 14px; margin-top: 26px; font-size: 15px; color: var(--tx-2); }
+
+@media (max-width: 1360px) {
+  .week__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hero__stand { left: 47%; }
+}

@@ -63,3 +63,25 @@ npm run dev        # http://localhost:5340
 **Root Directory** to `directions`. Vercel detects Vite and `directions/vercel.json` pins the
 settings (`npm ci`, `npm run build`, output `dist/`). The site at the repository root keeps its own
 project and link.
+
+## Onyx (`onyx/`)
+
+The fourth design direction, on its own link. It has the same four pages on the PRD flow:
+
+- **Learner:** home, with a living real-time 3D Ahmed; my journey, the stages standing on a lit path of stone pedestals.
+- **Admin:** dashboard, built around the review queue; pathway builder, where content is dragged onto the pedestals.
+
+The world is rendered in Blender as layers, and the interface runs live on top.
+
+```bash
+cd onyx
+npm install
+npm run dev        # http://localhost:5350
+```
+
+Pages: `/#/learner/home`, `/#/learner/journey`, `/#/admin/dashboard`, `/#/admin/builder`.
+
+**Deploy:** create a third Vercel project from this same repository and set its **Root Directory**
+to `onyx`. `onyx/vercel.json` pins the settings (`npm ci`, `npm run build`, output `dist/`).
+
+The character model is a placeholder for this mockup, like the ones above.

@@ -1,0 +1,20 @@
+/* ── 2.5D world: stacked pre-rendered layers, a camera, a pulse, live chips ── */
+.s25 { position: absolute; inset: 0; overflow: hidden; isolation: isolate; background: #050506; }
+.s25.is-map { background: radial-gradient(70% 70% at 55% 45%, #0e0d0d 0%, #060607 70%); }
+.s25__layers { position: absolute; inset: 0; }
+.s25__layer { position: absolute; left: 0; top: 0; display: block; max-width: none; transform-origin: 0 0; will-change: transform; user-select: none; pointer-events: none; }
+.s25__layer--glow { mix-blend-mode: plus-lighter; animation: s25-breathe 7s ease-in-out infinite; }
+@keyframes s25-breathe { 0%, 100% { opacity: 0.84; } 50% { opacity: 1; } }
+.s25__map { overflow: visible; }
+.s25__pulse { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; mix-blend-mode: plus-lighter; }
+.s25__overlay { position: absolute; inset: 0; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) {
+  .s25__layer--glow { animation: none; }
+}
+/* the admin view may sit smaller than the screen: its frame fades into the dark instead of ending on an edge */
+.s25.is-admin.is-art .s25__layer {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent), linear-gradient(180deg, transparent, #000 7%, #000 93%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent), linear-gradient(180deg, transparent, #000 7%, #000 93%, transparent);
+  mask-composite: intersect;
+}

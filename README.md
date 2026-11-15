@@ -39,3 +39,27 @@ Below a 1:1 aspect ratio or 820px wide it switches to a single-column arrangemen
 
 The character models are third-party game assets used as placeholders for this mockup.
 They must be replaced or licensed before anything is published.
+
+## Design directions (`directions/`)
+
+A second app with three alternative design directions for the same product, each with two learner
+pages (home, my journey) and two admin pages (dashboard, pathway builder), all on the PRD flow:
+
+| Direction | Entry | Idea |
+| --- | --- | --- |
+| Summit | `/summit.html` | dark glass interface with painted key art |
+| Tapes | `/tapes.html` | camcorder and VHS tapes: the learner plays, the admin records |
+| Ember | `/ember.html` | obsidian cliffs and a path of fire |
+
+`/` is a hub that links to every page.
+
+```bash
+cd directions
+npm install
+npm run dev        # http://localhost:5340
+```
+
+**Deploy:** create a second Vercel project from this same repository and set its
+**Root Directory** to `directions`. Vercel detects Vite and `directions/vercel.json` pins the
+settings (`npm ci`, `npm run build`, output `dist/`). The site at the repository root keeps its own
+project and link.

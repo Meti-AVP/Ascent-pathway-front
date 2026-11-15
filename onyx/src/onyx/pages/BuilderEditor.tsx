@@ -16,9 +16,11 @@ export const CLAUSE_ICON: Record<ClauseKind, typeof Target> = {
 };
 
 // ── Stage editor ───────────────────────────────────────────────────────────
-export function Editor({ stage, n, total, stages, problems, locked, flashId, onSheet, onFix, onMove, onDuplicate, onRemove, onFlash }: {
+export function Editor({ stage, n, total, stages, problems, locked, flashId, onSheet, onFix, onMove, onDuplicate, onRemove, onFlash, top, head, className }: {
   stage: BStage; n: number; total: number; stages: BStage[]; problems: Problem[]; locked: boolean; flashId: string | null;
   onSheet: (k: SheetKind) => void; onFix: (p: Problem) => void; onMove: (d: -1 | 1) => void; onDuplicate: () => void; onRemove: () => void; onFlash: (id: string) => void;
+  /** extra content under the title (problems with their fixes), and next to the stage menu (a close button) */
+  top?: ReactNode; head?: ReactNode; className?: string;
 }) {
   const root = useRef<HTMLElement>(null);
   const I = TYPE_ICON[stage.type];
@@ -38,7 +40,7 @@ export function Editor({ stage, n, total, stages, problems, locked, flashId, onS
   const next = stages.slice(n).find((s) => s.type !== 'branch');
 
   return (
-    <aside ref={root} className="editor glass g-lit" aria-label={`Stage ${n}: ${stage.name}`}>
+    <aside ref={root} className={['editor glass g-lit', className].filter(Boolean).join(' ')} aria-label={`Stage ${n}: ${stage.name}`}>
       <div className="editor__head ed-anim">
         <Chip icon={<I size={14} />}>{STAGE_TYPES[stage.type].label}</Chip>
         <span className="editor__pos">Stage {n} of {total}</span>
@@ -54,6 +56,7 @@ export function Editor({ stage, n, total, stages, problems, locked, flashId, onS
             )}
           </Menu>
         )}
+        {head}
       </div>
       <input
         className="editor__name ed-anim" value={stage.name} aria-label="Stage name" disabled={locked}
@@ -61,6 +64,7 @@ export function Editor({ stage, n, total, stages, problems, locked, flashId, onS
       />
       <p className="editor__what ed-anim">{STAGE_TYPES[stage.type].what}.</p>
       {locked && <p className="editor__lock ed-anim"><Lock size={15} /> Editing is paused while the journey is in review or live.</p>}
+      {top}
 
       <section className="ed-sec ed-anim">
         <h3 className="ed-sec__title">Content</h3>

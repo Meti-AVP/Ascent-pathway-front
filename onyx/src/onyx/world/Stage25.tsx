@@ -13,6 +13,8 @@ export interface StageApi {
   glide(c: Partial<Cam>, opts?: { duration?: number; ease?: string; cover?: boolean }): void;
   fit(box: { x0: number; y0: number; x1: number; y1: number }, rect: { left: number; top: number; right: number; bottom: number }, opts?: { duration?: number; maxZ?: number; minZ?: number }): void;
   subscribe(fn: () => void): () => void;
+  /** a rendered layer element (bg, mid, path, glow, fg), for masks and light effects */
+  layer(name: string): HTMLElement | null;
 }
 
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -139,6 +141,7 @@ export function Stage25({ view, pulse, apiRef, className, children, onReady }: {
       gsap.to(s.cam, { ...to, duration: reducedMotion() ? 0 : opts.duration ?? 1.4, ease: 'onyxInOut', onUpdate: () => { s.dirty = true; } });
     },
     subscribe: (fn) => { st.current.subs.add(fn); return () => st.current.subs.delete(fn); },
+    layer: (name) => layersRef.current?.querySelector<HTMLElement>(`.s25__layer--${name}`) ?? (name === 'glow' || name === 'path' ? layersRef.current?.querySelector<HTMLElement>('.s25__map') ?? null : null),
   }));
 
   useLayoutEffect(() => {

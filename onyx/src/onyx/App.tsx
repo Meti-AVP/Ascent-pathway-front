@@ -5,7 +5,7 @@ import { useApp } from './store';
 import { ROUTES, TABS, parse, go, type Route, type RouteKey } from './router';
 import { Home } from './pages/Home';
 import { Dashboard } from './pages/Dashboard';
-import { Builder } from './pages/Builder';
+import { BuilderNext } from './pages/BuilderNext';
 
 const Journey = lazy(() => import('./pages/Journey'));
 
@@ -134,7 +134,7 @@ export function App() {
       case 'learner/home': return <Home />;
       case 'learner/journey': return <Suspense fallback={null}><Journey q={shown.q} /></Suspense>;
       case 'admin/dashboard': return <Dashboard />;
-      case 'admin/builder': return <Builder />;
+      case 'admin/builder': return <BuilderNext />;
     }
   })();
 

@@ -17,12 +17,14 @@ export interface WorldView {
   slots: Record<MainSlotId, Slot> & { slot_branch?: Slot };
   path: [number, number][];
   gate: { x: number; y: number };
+  /** the gate's bounding box, when the world gives one (it may reach past the frame) */
+  gateBox?: { x0: number; y0: number; x1: number; y1: number };
 }
 
 // `?world=world-v4` previews another render set in public/onyx/ without changing the default
 const BASE = (() => {
   const w = typeof location === 'undefined' ? null : new URLSearchParams(location.search).get('world');
-  return w && /^world[a-z0-9-]*$/.test(w) ? `/onyx/${w}` : '/onyx/world';
+  return w && /^world[a-z0-9-]*$/.test(w) ? `/onyx/${w}` : '/onyx/world-v5'; // v5: one straight line of nine pedestals, photoscanned rock
 })();
 const ORDER = ['bg', 'mid', 'path', 'glow', 'fg'];
 const DEPTH: Record<string, number> = { bg: 0.15, mid: 0.4, path: 0.6, glow: 0.6, fg: 1 };
@@ -71,7 +73,9 @@ function readView(raw: unknown, name: ViewName): WorldView | null {
   const pathRaw = (raw.path ?? raw.polyline ?? raw.pathPolyline) as unknown;
   const pts = (Array.isArray(pathRaw) ? pathRaw : isObj(pathRaw) && Array.isArray(pathRaw.points) ? pathRaw.points : [])
     .map(pt).filter(Boolean) as [number, number][];
-  const gate = pt(isObj(raw.gate) && 'center' in raw.gate ? raw.gate.center : raw.gate) ?? [slots.slot_9.cx, slots.slot_9.cy - 0.12];
+  const g = raw.gate;
+  const gate = pt(isObj(g) ? (g.center ?? g.emblem ?? g) : g) ?? [slots.slot_9.cx, slots.slot_9.cy - 0.12];
+  const gb = isObj(g) && Array.isArray(g.box) && g.box.length === 4 ? { x0: num(g.box[0]), y0: num(g.box[1]), x1: num(g.box[2]), y1: num(g.box[3]) } : undefined;
   const layersRaw = isObj(raw.layers) ? raw.layers : isObj(raw.parallax) ? raw.parallax : {};
   const layers = ORDER.map((n) => {
     const l = layersRaw[n];
@@ -81,7 +85,7 @@ function readView(raw: unknown, name: ViewName): WorldView | null {
   });
   const size = Array.isArray(raw.size) ? raw.size : null;
   const aspect = size ? num(size[0], 16) / num(size[1], 9) : 16 / 9;
-  return { art: true, aspect, layers, slots, path: pts.length >= 2 ? pts : smoothThrough((MAIN_SLOTS as MainSlotId[]).map((i) => [slots[i].cx, slots[i].cy])), gate: { x: gate[0], y: gate[1] } };
+  return { art: true, aspect, layers, slots, path: pts.length >= 2 ? pts : smoothThrough((MAIN_SLOTS as MainSlotId[]).map((i) => [slots[i].cx, slots[i].cy])), gate: { x: gate[0], y: gate[1] }, gateBox: gb };
 }
 
 /** Load the world for a view. Falls back to the flat schematic when the renders are absent. */
@@ -128,46 +132,28 @@ export function nearestIndex(path: [number, number][], x: number, y: number) {
 
 // ── the flat schematic map (no art): used until the renders land, or if they fail ──
 function schematicSlots(view: ViewName): WorldView['slots'] {
-  const L: [number, number][] = view === 'learner'
-    ? [[0.17, 0.82], [0.26, 0.74], [0.34, 0.66], [0.42, 0.6], [0.5, 0.54], [0.57, 0.48], [0.63, 0.42], [0.69, 0.36], [0.74, 0.3]]
-    : [[0.3, 0.9], [0.5, 0.86], [0.68, 0.76], [0.56, 0.64], [0.36, 0.58], [0.28, 0.44], [0.46, 0.36], [0.66, 0.3], [0.52, 0.16]];
-  const br: [number, number] = view === 'learner' ? [0.5, 0.36] : [0.14, 0.32];
-  const rx = view === 'learner' ? 0.036 : 0.034;
-  const ry = view === 'learner' ? 0.016 : 0.026;
+  const [x0, y0, x1, y1] = view === 'learner' ? [0.08, 0.79, 0.81, 0.54] : [0.09, 0.87, 0.92, 0.12];
   const out = {} as WorldView['slots'];
   (MAIN_SLOTS as MainSlotId[]).forEach((id, i) => {
-    const [cx, cy] = L[i]!;
-    const k = view === 'learner' ? 1 - i * 0.035 : 1;
-    out[id] = { id, cx, cy, rx: rx * k, ry: ry * k, lx: cx, ly: cy - ry * k * 1.2 };
+    const t = i / 8;
+    const cx = x0 + (x1 - x0) * t, cy = y0 + (y1 - y0) * t;
+    const rx = view === 'learner' ? 0.043 - 0.013 * t : 0.04;
+    const ry = view === 'learner' ? rx * (0.6 - 0.24 * t) : 0.058;
+    out[id] = { id, cx, cy, rx, ry, lx: cx, ly: cy - ry * 3.4 };
   });
-  out.slot_branch = { id: 'slot_branch', cx: br[0], cy: br[1], rx: rx * 0.8, ry: ry * 0.8, lx: br[0], ly: br[1] - ry };
   return out;
 }
 
 function schematic(view: ViewName): WorldView {
   const slots = schematicSlots(view);
   const pts = (MAIN_SLOTS as MainSlotId[]).map((id) => [slots[id].cx, slots[id].cy] as [number, number]);
-  const gate = view === 'learner' ? { x: 0.79, y: 0.22 } : { x: 0.5, y: 0.07 };
-  return { art: false, aspect: 16 / 9, layers: [], slots, path: smoothThrough([[pts[0]![0] - 0.06, pts[0]![1] + 0.08], ...pts, [gate.x, gate.y + 0.02]]), gate };
+  const gate = view === 'learner' ? { x: 0.87, y: 0.43 } : { x: 1.04, y: -0.24 };
+  return { art: false, aspect: 16 / 9, layers: [], slots, path: smoothThrough(pts), gate };
 }
 
 // ── which stage sits on which pedestal ─────────────────────────────────────
-/** N stages onto nine pedestals: Reward on slot_9 at the gate, the rest spread evenly along the line.
- *  A Branch goes on the side ledge when the world has one; on a single-line world it takes its place in the line. */
-export function slotsFor(types: string[], hasLedge = true): SlotId[] {
-  const out: SlotId[] = new Array(types.length);
-  const main: number[] = [];
-  types.forEach((t, i) => {
-    if (t === 'branch' && hasLedge) out[i] = 'slot_branch';
-    else if (t === 'reward' && i === types.length - 1) out[i] = 'slot_9';
-    else main.push(i);
-  });
-  const k = main.length;
-  const hasReward = types[types.length - 1] === 'reward';
-  const top = hasReward ? 8 : 9;
-  main.forEach((idx, j) => {
-    const n = k === 1 ? 1 : 1 + Math.round((j * (top - 1)) / (k - 1));
-    out[idx] = `slot_${Math.min(top, n)}` as SlotId;
-  });
-  return out;
+/** Stage n stands on pedestal n: one consecutive line with no gaps (the owner's single line). The Branch
+ *  takes its turn in the line like any other stage. The second argument is kept for older callers. */
+export function slotsFor(types: string[], _hasLedge = false): MainSlotId[] {
+  return types.map((_, i) => (MAIN_SLOTS as MainSlotId[])[Math.min(i, 8)]!);
 }

@@ -6,6 +6,8 @@ import { PATHWAYS, PRODUCT_KINDS, STAGE_TYPES, currentStageOf, doneCount, pathwa
 import { launch, store } from '../store';
 import { Stage25, type StageApi } from '../world/Stage25';
 import { loadWorld, nearestIndex, slotsFor, type SlotId, type WorldView } from '../world/scene';
+import { objectKeyFor, useObjects } from '../world/objects';
+import { ObjectSprite } from '../world/ObjectSprite';
 import './journey.css';
 
 const isKey = (k: string | null): k is PathKey => k === 'sales' || k === 'product' || k === 'lead';
@@ -21,18 +23,18 @@ export default function Journey({ q }: { q: URLSearchParams }) {
   const root = useRef<HTMLDivElement>(null);
   const api = useRef<StageApi>(null);
   const chips = useRef(new Map<SlotId, HTMLElement>());
-  const branchPath = useRef<SVGPathElement>(null);
   const arrived = useRef(false);
+  // realistic 3D objects replace the medallions only once every one of them has loaded
+  const objs = useObjects();
 
   const path = pathwayOf(key);
   // every stage stands on the one line, in order (the owner asked for a single line, no side branches)
   const slots = useMemo(() => slotsFor(path.stages.map((s) => s.type), false), [path]);
   const stage = path.stages[stageN - 1] ?? path.stages[0]!;
-  const branchIdx = path.stages.findIndex((s) => s.type === 'branch');
 
   useEffect(() => { let alive = true; loadWorld('learner').then((v) => { if (alive) setView(v); }); return () => { alive = false; }; }, []);
 
-  // stand each emblem on its pedestal (and draw the branch connector) whenever the camera or the parallax moves
+  // stand each emblem on its pedestal whenever the camera or the parallax moves
   const placeAll = () => {
     const a = api.current;
     if (!a || !view) return;
@@ -51,16 +53,6 @@ export default function Journey({ q }: { q: URLSearchParams }) {
       el.style.setProperty('--tilt', `${(Math.asin(Math.min(0.9, ry / rx)) * 57.3 * 0.8).toFixed(1)}deg`);
       el.style.zIndex = String(Math.round(s.cy * 100));
     });
-    const bp = branchPath.current;
-    if (bp) {
-      const br = view.slots.slot_branch;
-      if (branchIdx < 0 || !br || slots[branchIdx] !== 'slot_branch') { bp.setAttribute('d', ''); return; }
-      const srcSlot = view.slots[slots[branchIdx - 1] ?? 'slot_6'];
-      if (!srcSlot) { bp.setAttribute('d', ''); return; }
-      const A = a.toScreen(srcSlot.cx, srcSlot.cy, { x: 0, y: 0 });
-      const B = a.toScreen(br.cx, br.cy, { x: 0, y: 0 });
-      bp.setAttribute('d', `M${A.x},${A.y} Q${(A.x + B.x) / 2},${Math.min(A.y, B.y) - 40} ${B.x},${B.y}`);
-    }
   };
   useEffect(() => {
     if (!view || !api.current) return;
@@ -73,25 +65,31 @@ export default function Journey({ q }: { q: URLSearchParams }) {
     if (el) { chips.current.set(id, el); placeAll(); } else chips.current.delete(id);
   };
 
-  // soft pan-and-zoom: centre the chosen stage in the space the panel leaves free
-  const focus = (n: number, opts: { duration?: number; z?: number; open?: boolean } = {}) => {
+  // soft pan-and-zoom along the line: the chosen stage sits left of centre in the space the panel leaves,
+  // and the camera keeps the gate (the goal) in view whenever it fits
+  const focus = (n: number, opts: { duration?: number; z?: number; open?: boolean; ease?: string } = {}) => {
     const a = api.current;
     if (!a || !view) return;
     const s = view.slots[slots[n - 1] ?? 'slot_1'] ?? view.slots.slot_1;
     const { w } = a.size();
     const isOpen = opts.open ?? panel;
     const panelW = isOpen ? Math.min(430, Math.max(360, w * 0.27)) + 64 : 0;
-    a.glide({ fx: s.cx, fy: s.cy - 0.05, z: opts.z ?? (isOpen ? 1.05 : 1.02), ax: (w - panelW) / 2 / w + (isOpen ? 0.03 : 0), ay: 0.56 }, { duration: opts.duration ?? 1.5 });
+    const freeW = w - panelW;
+    const z = opts.z ?? (isOpen ? 1.3 : 1.2);
+    const toGate = (view.gate.x - s.cx) * a.frameSize().w * z;
+    let at = freeW * 0.42;
+    if (toGate > 0 && toGate < freeW * 0.62) at = Math.max(freeW * 0.24, freeW * 0.9 - toGate);
+    a.glide({ fx: s.cx, fy: s.cy - 0.03, z, ax: at / w, ay: 0.6 }, { duration: opts.duration ?? 1.6, ease: opts.ease });
   };
 
-  // arrival: a slow push-in toward where Ahmed is
   useLayoutEffect(() => {
     if (!view || arrived.current) return;
     arrived.current = true;
     const a = api.current;
     if (a) {
-      a.glide({ fx: 0.5, fy: 0.5, z: 1, ax: 0.5, ay: 0.5 }, { duration: 0 });
-      window.setTimeout(() => focus(stageN, { duration: reduced() ? 0 : 3.4 }), 60);
+      // arrival: start at the first pedestal, then dolly slowly along the line to where Ahmed is
+      focus(1, { duration: 0 });
+      window.setTimeout(() => focus(stageN, { duration: reduced() ? 0 : 3.6, ease: 'power2.inOut' }), 120);
     }
     const q2 = gsap.utils.selector(root);
     splitReveal(q2('.jhead__title')[0] ?? null, { by: 'words', stagger: 0.08, delay: 0.4 });
@@ -109,7 +107,7 @@ export default function Journey({ q }: { q: URLSearchParams }) {
     setPanel(true);
     focus(next, { open: true });
   };
-  const closePanel = () => { setPanel(false); focus(stageN, { open: false, z: 1.02, duration: 1.3 }); };
+  const closePanel = () => { setPanel(false); focus(stageN, { open: false, duration: 1.3 }); };
 
   // switching pathway: the chips cross-fade on the same path
   const switchTo = (k: PathKey) => {
@@ -147,8 +145,8 @@ export default function Journey({ q }: { q: URLSearchParams }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (store.get().launch) return;
-      const t = e.target as HTMLElement;
-      if (t.closest('input, textarea, [role="dialog"]')) return;
+      const t = e.target instanceof Element ? e.target : null;
+      if (t?.closest('input, textarea, [role="dialog"]')) return;
       if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { e.preventDefault(); select(stageN + 1); }
       else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { e.preventDefault(); select(stageN - 1); }
       else if (e.key === 'Escape' && panel) { e.preventDefault(); closePanel(); }
@@ -179,7 +177,6 @@ export default function Journey({ q }: { q: URLSearchParams }) {
     <div ref={root} className="page journey">
       {view ? (
         <Stage25 view={view} apiRef={api} pulse={pulse}>
-          <svg className="jbranch" aria-hidden><path ref={branchPath} /></svg>
           {path.stages.map((s, i) => {
             const id = slots[i]!;
             const SM = STATE_META[s.state];
@@ -191,12 +188,20 @@ export default function Journey({ q }: { q: URLSearchParams }) {
                 <div className="c25__in">
                   <span className="c25__pool" aria-hidden />
                   <button type="button" className="c25__btn" aria-pressed={sel} aria-label={`Stage ${s.n}, ${s.name}, ${s.state === 'current' ? 'you are here' : SM.text}`} onClick={() => select(s.n)}>
-                    <span className="c25__coin" aria-hidden>
-                      <span className="c25__spin">
-                        {EDGE.map((k) => <span key={k} className="c25__edge" style={{ '--k': k } as CSSProperties} />)}
-                        <span className="c25__face"><Glyph strokeWidth={2.3} /></span>
+                    {objs ? (
+                      <ObjectSprite
+                        entry={objs[objectKeyFor(s.type, s.product.kind)]}
+                        file={s.state === 'current' ? 'learner_spin' : s.state === 'done' ? 'learner_done' : s.state === 'locked' ? 'learner_stone' : 'learner_lit'}
+                        className="c25__obj"
+                      />
+                    ) : (
+                      <span className="c25__coin" aria-hidden>
+                        <span className="c25__spin">
+                          {EDGE.map((k) => <span key={k} className="c25__edge" style={{ '--k': k } as CSSProperties} />)}
+                          <span className="c25__face"><Glyph strokeWidth={2.3} /></span>
+                        </span>
                       </span>
-                    </span>
+                    )}
                     <span className="c25__name">{s.state === 'current' && <span className="c25__here"><CirclePlay /> You are here</span>}{s.name}</span>
                   </button>
                 </div>

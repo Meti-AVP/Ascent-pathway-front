@@ -139,3 +139,7 @@
 .jhint kbd { display: inline-grid; place-items: center; min-width: 24px; height: 22px; padding: 0 6px; border-radius: 6px; font: 600 12px/1 var(--f-ui); color: var(--tx-2); background: rgba(255, 255, 255, 0.08); }
 .jload { position: absolute; z-index: 8; left: 50%; top: 50%; transform: translate(-50%, -50%); display: grid; justify-items: center; gap: 10px; padding: 24px 28px; text-align: center; }
 .jload__title { font: 600 18px/1.2 var(--f-display); letter-spacing: -0.02em; }
+
+/* realistic 3D objects (when /onyx/objects has landed): anchored on the pedestal top, sized by rx × fit */
+.c25__obj { position: absolute; left: 50%; bottom: var(--ry); display: block; pointer-events: none; filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.55)); }
+.c25--optional .c25__obj { opacity: 0.7; }

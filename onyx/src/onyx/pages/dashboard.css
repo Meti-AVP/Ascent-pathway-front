@@ -3,7 +3,7 @@
 
 .dash { padding-bottom: 110px; }
 /* where Sara stands once her living character is available */
-.dash__stand { position: absolute; z-index: 0; left: 52%; width: 24vw; top: 64px; height: 280px; pointer-events: none; }
+.dash__stand { position: absolute; z-index: 0; left: 52%; width: 26vw; top: 24px; height: 340px; pointer-events: none; }
 .dash__head, .dash__grid, .insights { position: relative; z-index: 1; }
 .dash__head { position: relative; display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; margin-bottom: 28px; }
 .dash__copy { display: grid; }

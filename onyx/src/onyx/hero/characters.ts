@@ -86,8 +86,22 @@ export const CHARACTERS: Record<CharacterId, CharacterSpec | null> = {
       fade: 0,
     },
   },
-  // No realistic model yet: renders nothing and never reports ready.
-  sara: null,
+  // fornewassets/converted/female/web (build_web.py + finish_glb.py): the Org Admin reading and approving on a
+  // tablet. Her gaze is baked in the clip (no eyeLook keys); blinks and the head's cursor follow come from here.
+  sara: {
+    url: '/onyx/hero/sara.glb',
+    framing: {
+      kind: 'band',
+      target: [0.0, 1.32, 0.04],
+      azimuth: -40,
+      elevation: -2,
+      fov: 23.9,
+      band: [0.92, 1.72],
+      minAspect: 0.62,
+      x: 0.5,
+      fade: 0.18,
+    },
+  },
 };
 
 export const CHARACTER_IDS = Object.keys(CHARACTERS) as CharacterId[];
